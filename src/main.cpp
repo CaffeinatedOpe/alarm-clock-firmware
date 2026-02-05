@@ -11,11 +11,14 @@
 #include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 #include "audio.h"
 #include <stdio.h>
+#include "wifiCreator.h"
 
 void setup(){
    audioSetup(9000);
+   WIFISetup();
 }
 
 void loop(){
-   audioLoop();
+   //audioLoop();
+   WIFILoop();
 }

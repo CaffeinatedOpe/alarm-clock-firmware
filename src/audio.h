@@ -6,8 +6,6 @@
  * @copyright GPLv3
  */
 
-#ifndef  AUDIO_H
-#define AUDIO_H
 #include "AudioTools.h"
 #include "AudioTools/AudioLibs/AudioBoardStream.h"
 #include "AudioTools/Disk/AudioSourceSD.h" // or AudioSourceIdxSD.h
@@ -66,5 +64,3 @@ void audioLoop() {
   kit.processActions();
 
 }
-
-#endif
