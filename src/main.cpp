@@ -14,11 +14,11 @@
 #include "wifiCreator.h"
 
 void setup(){
-   audioSetup(9000);
-   WIFISetup();
+   //audioSetup(9000);
+   wifiSetup();
 }
 
 void loop(){
    //audioLoop();
-   WIFILoop();
+   wifiLoop();
 }
