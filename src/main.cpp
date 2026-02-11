@@ -12,13 +12,17 @@
 #include "audio.h"
 #include <stdio.h>
 #include "wifiCreator.h"
+#include "timeTelling.h"
 
 void setup(){
    //audioSetup(9000);
    wifiSetup();
+   //autoTimeSetup();
+   manualTimeSetup();
 }
 
 void loop(){
    //audioLoop();
    wifiLoop();
+   autoTimeLoop();
 }
