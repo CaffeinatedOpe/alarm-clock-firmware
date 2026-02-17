@@ -18,11 +18,11 @@ void setup(){
    //audioSetup(9000);
    wifiSetup();
    //autoTimeSetup();
-   manualTimeSetup();
+   manualTimeSetup(7, 30, 0);
 }
 
 void loop(){
    //audioLoop();
    wifiLoop();
-   autoTimeLoop();
+   manualTimeLoop();
 }

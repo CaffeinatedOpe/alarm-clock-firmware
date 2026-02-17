@@ -13,8 +13,8 @@
 #include <sys/time.h>
 #include "time.h"
 
-const char* ssid     = "REPLACE_WITH_YOUR_SSID";
-const char* password = "REPLACE_WITH_YOUR_PASSWORD";
+const char* ssid     = "FHSD-Guest";
+const char* password = " ";
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 0;
@@ -49,15 +49,15 @@ void autoTimeLoop(){
     Serial.println("%A, %H:%M:%S");
   }
 
-  delay(60000);
+  delay(1000);
 }
 
 // Set your manual time: Year, Month (0-11), Day, Hour, Min, Sec
-void setManualTime(int year, int month, int day, int hour, int min, int sec) {
+void setManualTime(int hour, int min, int sec) {
   struct tm tm;
-  tm.tm_year = year - 1900; // Years since 1900
-  tm.tm_mon = month - 1;    // Month 0-11
-  tm.tm_mday = day;
+  tm.tm_year = 2026 - 1900; // Years since 1900
+  tm.tm_mon = 12 - 1;    // Month 0-11
+  tm.tm_mday = 12;
   tm.tm_hour = hour;
   tm.tm_min = min;
   tm.tm_sec = sec;
@@ -68,10 +68,10 @@ void setManualTime(int year, int month, int day, int hour, int min, int sec) {
   settimeofday(&now, NULL);
 }
 
-void manualTimeSetup() {
+void manualTimeSetup(int hour, int min, int sec) {
   Serial.begin(115200);
   // Example: Set to Feb 12, 2026, 10:00:00
-  setManualTime(2026, 2, 12, 10, 0, 0);
+  setManualTime(hour, min, sec);
   Serial.println("Time Set Manually");
 }
 
@@ -82,5 +82,5 @@ void manualTimeLoop() {
   
   // Print time
   Serial.println(asctime(timeinfo));
-  delay(60000); // Print every second
+  delay(1000); // Print every second
 }
