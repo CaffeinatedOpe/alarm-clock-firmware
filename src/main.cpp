@@ -22,7 +22,10 @@ void setup(){
 }
 
 void loop(){
-   //audioLoop();
+   if(getManualTime("07:31:00")){
+      Serial.println("Time is time");
+     audioLoop();
+   }
    wifiLoop();
    manualTimeLoop();
 }
