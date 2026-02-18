@@ -15,7 +15,7 @@
 #include "timeTelling.h"
 
 void setup(){
-   //audioSetup(9000);
+   audioSetup(9000);
    wifiSetup();
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
