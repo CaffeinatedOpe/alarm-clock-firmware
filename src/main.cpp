@@ -5,14 +5,11 @@
  * @author Phil Schatzmann
  * @copyright GPLv3
  */
-#include "AudioTools.h"
-#include "AudioTools/AudioLibs/AudioBoardStream.h"
-#include "AudioTools/Disk/AudioSourceSD.h" // or AudioSourceIdxSD.h
-#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 #include "audio.h"
 #include <stdio.h>
 #include "wifiCreator.h"
 #include "timeTelling.h"
+#include "button.h"
 
 void setup(){
    audioSetup(9000);
@@ -23,8 +20,10 @@ void setup(){
 
 void loop(){
    if(getManualTime("07:31:00")){
-      Serial.println("Time is time");
-     audioLoop();
+      while(!getButtonState()){
+         Serial.println("Time is time");
+         audioLoop();
+      }
    }
    wifiLoop();
    manualTimeLoop();
