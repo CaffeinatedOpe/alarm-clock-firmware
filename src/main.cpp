@@ -14,17 +14,21 @@
 void setup(){
    audioSetup(9000);
    wifiSetup();
+   buttonSetup();
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
 }
 
 void loop(){
+   buttonSetup();
+   wifiLoop();
+   manualTimeLoop();
    if(getManualTime("07:31:00")){
+      Serial.println("Time is time");
       while(!getButtonState()){
-         Serial.println("Time is time");
+         Serial.println("Button is not Pressed");
          audioLoop();
       }
    }
-   wifiLoop();
-   manualTimeLoop();
+   
 }
