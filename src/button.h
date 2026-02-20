@@ -1,8 +1,6 @@
-const int buttonPin = 21;
-
 int buttonState = 0;
 
-void buttonSetup() {
+void buttonSetup(int buttonPin){
   pinMode(buttonPin, INPUT_PULLUP); // initialize pushbutton pin with internal pull-up
 }
 

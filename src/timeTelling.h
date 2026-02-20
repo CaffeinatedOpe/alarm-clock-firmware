@@ -82,10 +82,10 @@ void manualTimeSetup(int hour, int min, int sec) {
 void manualTimeLoop() {
   time_t now;
   time(&now);
-  char time_buffer[9];
+  char time_buffer[6];
   struct tm *timeinfo = localtime(&now);
   
-  strftime(time_buffer, sizeof(time_buffer), "%H:%M:%S", timeinfo);
+  strftime(time_buffer, sizeof(time_buffer), "%H:%M", timeinfo);
   // Print time
   Serial.println(time_buffer);
   delay(1000); // Print every second
@@ -94,10 +94,10 @@ void manualTimeLoop() {
 bool getManualTime(char* alarmTime) {
   time_t now;
   time(&now);
-  char time_buffer[9];
+  char time_buffer[6];
   struct tm *timeinfo = localtime(&now);
 
-  strftime(time_buffer, sizeof(time_buffer), "%H:%M:%S", timeinfo);
+  strftime(time_buffer, sizeof(time_buffer), "%H:%M", timeinfo);
   
   return strcmp(time_buffer, alarmTime) == 0;
 }
