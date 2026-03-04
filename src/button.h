@@ -3,7 +3,8 @@ int buttonPin = 0;
 
 void buttonSetup(int buttonPin){
   buttonPin = buttonPin;
-  pinMode(buttonPin, INPUT_PULLUP); // initialize pushbutton pin with internal pull-up
+  pinMode(buttonPin, INPUT_PULLUP);
+  digitalWrite(buttonPin, HIGH); // initialize pushbutton pin with internal pull-up
 }
 
 void buttonLoop() {

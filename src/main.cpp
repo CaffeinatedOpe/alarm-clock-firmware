@@ -11,10 +11,11 @@
 #include "timeTelling.h"
 #include "button.h"
 
+
 void setup(){
    audioSetup(9000);
    wifiSetup();
-   buttonSetup(21);
+   buttonSetup(5);
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
 }
@@ -22,11 +23,12 @@ void setup(){
 void loop(){
    wifiLoop();
    manualTimeLoop();
-   if(getManualTime("07:31:00")){
+   if(getManualAlarmTime("07:31:00")){
       Serial.println("Time is time");
-      do {
-         audioLoop();
-         Serial.println("Button is not presses");
-      } while(!getButtonState());
+      while(!getButtonState()){
+         //audioLoop();
+         Serial.println("Button is not pressed");
+      }
+      Serial.println("Button is pressed");
    }
 }
