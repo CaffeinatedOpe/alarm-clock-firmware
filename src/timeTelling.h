@@ -82,22 +82,22 @@ void manualTimeSetup(int hour, int min, int sec) {
 void manualTimeLoop() {
   time_t now;
   time(&now);
-  char time_buffer[6];
+  char time_buffer[9];
   struct tm *timeinfo = localtime(&now);
+
+  strftime(time_buffer, sizeof(time_buffer), "%H:%M:%S", timeinfo);
   
-  strftime(time_buffer, sizeof(time_buffer), "%H:%M", timeinfo);
-  // Print time
   Serial.println(time_buffer);
   delay(1000); // Print every second
 }
 
-bool getManualTime(char* alarmTime) {
+bool getManualAlarmTime(char* alarmTime) {
   time_t now;
   time(&now);
-  char time_buffer[6];
+  char time_buffer[9];
   struct tm *timeinfo = localtime(&now);
 
-  strftime(time_buffer, sizeof(time_buffer), "%H:%M", timeinfo);
+  strftime(time_buffer, sizeof(time_buffer), "%H:%M:%S", timeinfo);
   
   return strcmp(time_buffer, alarmTime) == 0;
 }

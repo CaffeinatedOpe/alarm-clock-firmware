@@ -15,7 +15,7 @@
 void setup(){
    audioSetup(9000);
    wifiSetup();
-   buttonSetup(5);
+   buttonSetup(21);
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
 }
