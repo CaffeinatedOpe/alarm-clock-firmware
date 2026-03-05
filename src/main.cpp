@@ -15,7 +15,7 @@
 void setup(){
    audioSetup(9000);
    wifiSetup();
-   buttonSetup(21);
+   buttonSetup();
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
 }
@@ -23,10 +23,10 @@ void setup(){
 void loop(){
    wifiLoop();
    manualTimeLoop();
-   if(getManualAlarmTime("07:31:00")){
+   if(getManualAlarmTime("07:30:15")){
       Serial.println("Time is time");
       while(!getButtonState()){
-         //audioLoop();
+         audioLoop();
          Serial.println("Button is not pressed");
       }
       Serial.println("Button is pressed");

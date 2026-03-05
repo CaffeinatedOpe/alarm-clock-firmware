@@ -1,17 +1,12 @@
 int buttonState = 0;
-int buttonPin = 0;
+int buttonPin = 5;
 
-void buttonSetup(int buttonPin){
-  buttonPin = buttonPin;
+void buttonSetup(int pinInput){
+	buttonPin = pinInput;
   pinMode(buttonPin, INPUT_PULLUP);
-  digitalWrite(buttonPin, HIGH); // initialize pushbutton pin with internal pull-up
-}
-
-void buttonLoop() {
-  buttonState = digitalRead(buttonPin); // read the state of the pushbutton value
 }
 
 bool getButtonState() {
-    buttonState = digitalRead(buttonPin);
-    return buttonState == LOW;
+    buttonState = !digitalRead(buttonPin);
+    return buttonState;
 }
