@@ -91,7 +91,7 @@ void manualTimeLoop() {
   delay(1000); // Print every second
 }
 
-bool getManualAlarmTime(char* alarmTime) {
+int getManualAlarmTime(char* alarmTime) {
   time_t now;
   time(&now);
   char time_buffer[9];
@@ -99,5 +99,9 @@ bool getManualAlarmTime(char* alarmTime) {
 
   strftime(time_buffer, sizeof(time_buffer), "%H:%M:%S", timeinfo);
   
-  return strcmp(time_buffer, alarmTime) == 0;
+  if (strcmp(time_buffer, alarmTime) == 0) {
+    return 2;
+  }else{
+    return 3;
+  }
 }

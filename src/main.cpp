@@ -11,24 +11,37 @@
 #include "timeTelling.h"
 #include "button.h"
 
+typedef enum {
+    BUTTON_PRESSED, 
+    TIME_UPDATE,
+    IS_TIME,
+    IS_NOT_TIME
+   } Status;
 
 void setup(){
    audioSetup(9000);
    wifiSetup();
-   buttonSetup();
+   buttonSetup(5);
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
+   Status status[] = { BUTTON_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
 }
 
 void loop(){
    wifiLoop();
    manualTimeLoop();
-   if(getManualAlarmTime("07:30:15")){
-      Serial.println("Time is time");
-      while(!getButtonState()){
-         audioLoop();
+   switch(getManualAlarmTime("07:30:30")){
+      case IS_TIME:
+         //audioLoop();
          Serial.println("Button is not pressed");
-      }
-      Serial.println("Button is pressed");
+         break;
    }
+   // if(getManualAlarmTime("07:31:00")){
+   //    Serial.println("Time is time");
+   //    while(!getButtonState()){
+   //       //audioLoop();
+   //       Serial.println("Button is not pressed");
+   //    }
+   //    Serial.println("Button is pressed");
+   // }
 }
