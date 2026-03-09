@@ -12,7 +12,8 @@
 #include "button.h"
 
 typedef enum {
-    BUTTON_PRESSED, 
+    BUTTON_PRESSED,
+    BUTTON_NOT_PRESSED, 
     TIME_UPDATE,
     IS_TIME,
     IS_NOT_TIME
@@ -24,7 +25,7 @@ void setup(){
    buttonSetup(5);
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
-   Status status[] = { BUTTON_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
+   std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
 }
 
 void loop(){
@@ -32,16 +33,16 @@ void loop(){
    manualTimeLoop();
    switch(getManualAlarmTime("07:30:30")){
       case IS_TIME:
-         //audioLoop();
-         Serial.println("Button is not pressed");
+         Serial.println("Time is Time");
+         switch(getButtonState())
+            case BUTTON_PRESSED:
+               Serial.println("Button is Pressed");
+               break;
+            case BUTTON_NOT_PRESSED:
+               //audioLoop();
+               Serial.println("Button is not Pressed");
+               break;
+         
          break;
    }
-   // if(getManualAlarmTime("07:31:00")){
-   //    Serial.println("Time is time");
-   //    while(!getButtonState()){
-   //       //audioLoop();
-   //       Serial.println("Button is not pressed");
-   //    }
-   //    Serial.println("Button is pressed");
-   // }
 }

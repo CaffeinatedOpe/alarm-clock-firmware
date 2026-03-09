@@ -100,8 +100,8 @@ int getManualAlarmTime(char* alarmTime) {
   strftime(time_buffer, sizeof(time_buffer), "%H:%M:%S", timeinfo);
   
   if (strcmp(time_buffer, alarmTime) == 0) {
-    return 2;
-  }else{
     return 3;
+  }else{
+    return 4;
   }
 }
