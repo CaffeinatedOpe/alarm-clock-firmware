@@ -11,6 +11,12 @@
 #include "timeTelling.h"
 #include "button.h"
 
+int L_BUTTON_PIN = 0;
+int R_BUTTON_PIN = 5;
+int L_RING_PIN = 19;
+int R_RING_PIN = 23;
+int MATRIX_PIN = 17;
+
 typedef enum {
     BUTTON_PRESSED,
     BUTTON_NOT_PRESSED, 
