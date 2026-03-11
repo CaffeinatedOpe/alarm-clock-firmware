@@ -1,12 +1,21 @@
 int buttonState = 0;
 int buttonPin = 5;
 
-void buttonSetup(int pinInput){
-	buttonPin = pinInput;
-  pinMode(buttonPin, INPUT_PULLUP);
-}
+class Button
+{
+private:
+	int pin;
 
-bool getButtonState() {
-    buttonState = !digitalRead(buttonPin);
-    return buttonState;
-}
+public:
+	void init(int pinInput)
+	{
+		pin = pinInput;
+		pinMode(pin, INPUT_PULLUP);
+	}
+
+	bool getState()
+	{
+		buttonState = !digitalRead(pin);
+		return buttonState;
+	}
+};

@@ -8,6 +8,8 @@
 */
 LedController lc = LedController(11,13,10,1); // [11 = DIN, 13 = CLK, 10 = CS, 1 = number of matrices]
 
+int MATRIX_PIN = 17;
+
 ByteBlock digits[10] = {
   {
     B00000000,

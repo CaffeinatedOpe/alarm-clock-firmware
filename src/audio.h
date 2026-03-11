@@ -18,6 +18,8 @@ AudioBoardStream kit(AudioKitEs8388V1);
 MP3DecoderHelix decoder;  // or change to MP3DecoderMAD
 AudioPlayer player(source, kit, decoder);
 
+
+
 void next(bool, int, void*) {
    player.next();
 }
@@ -30,9 +32,8 @@ void startStop(bool, int, void*) {
    player.setActive(!player.isActive());
 }
 
-void audioSetup(int serial) {
+void audioSetup() {
   initArduino();
-  Serial.begin(serial);
   AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Info);
 
   // setup output

@@ -13,9 +13,9 @@
 
 int L_BUTTON_PIN = 0;
 int R_BUTTON_PIN = 5;
-int L_RING_PIN = 19;
-int R_RING_PIN = 23;
-int MATRIX_PIN = 17;
+
+Button buttonL;
+Button buttonR;
 
 typedef enum {
     BUTTON_PRESSED,
@@ -26,9 +26,10 @@ typedef enum {
    } Status;
 
 void setup(){
-   audioSetup(9000);
+   audioSetup();
    wifiSetup();
-   buttonSetup(5);
+   buttonL.init(L_BUTTON_PIN);
+	 buttonR.init(R_BUTTON_PIN);
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
    std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
@@ -40,7 +41,7 @@ void loop(){
    switch(getManualAlarmTime("07:30:30")){
       case IS_TIME:
          Serial.println("Time is Time");
-         switch(getButtonState())
+         switch(buttonL.getState())
             case BUTTON_PRESSED:
                Serial.println("Button is Pressed");
                break;
