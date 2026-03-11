@@ -1,6 +1,3 @@
-int buttonState = 0;
-int buttonPin = 5;
-
 class Button
 {
 private:
@@ -15,7 +12,6 @@ public:
 
 	bool getState()
 	{
-		buttonState = !digitalRead(pin);
-		return buttonState;
+		return !digitalRead(pin);
 	}
 };
