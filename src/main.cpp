@@ -10,6 +10,7 @@
 #include "wifiCreator.h"
 #include "timeTelling.h"
 #include "button.h"
+#include "ledRings.h"
 
 int L_BUTTON_PIN = 0;
 int R_BUTTON_PIN = 5;
@@ -33,12 +34,14 @@ void setup(){
    //autoTimeSetup();
    manualTimeSetup(7, 30, 0);
    std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
+	 ledsetup();
 }
 
 void loop(){
    wifiLoop();
    manualTimeLoop();
-   switch(getManualAlarmTime("07:30:30")){
+	 ledloop();
+   /*switch(getManualAlarmTime("07:30:30")){
       case IS_TIME:
          Serial.println("Time is Time");
          switch(buttonL.getState())
@@ -51,5 +54,5 @@ void loop(){
                break;
          
          break;
-   }
+   }*/
 }

@@ -18,24 +18,12 @@ AudioBoardStream kit(AudioKitEs8388V1);
 MP3DecoderHelix decoder;  // or change to MP3DecoderMAD
 AudioPlayer player(source, kit, decoder);
 
-
-
-void next(bool, int, void*) {
-   player.next();
-}
-
-void previous(bool, int, void*) {
-   player.previous();
-}
-
-void startStop(bool, int, void*) {
-   player.setActive(!player.isActive());
-}
+typedef enum{
+	PLAYING,
+	SILENT
+} state;
 
 void audioSetup() {
-  initArduino();
-  AudioToolsLogger.begin(Serial, AudioToolsLogLevel::Info);
-
   // setup output
   auto cfg = kit.defaultConfig(TX_MODE);
   // sd_active is setting up SPI with the right SD pins by calling 
@@ -43,14 +31,6 @@ void audioSetup() {
   cfg.sd_active = true;
   kit.begin(cfg);
 
-  // setup additional buttons 
-  kit.addDefaultActions();
-  kit.addAction(kit.getKey(1), startStop);
-  kit.addAction(kit.getKey(4), next);
-  kit.addAction(kit.getKey(3), previous);
-
-
-  // setup player
   player.setVolume(0.7);
   player.begin();
 
@@ -60,8 +40,6 @@ void audioSetup() {
 
 }
 
-void audioLoop() {
+void audioPeriodic() {
   player.copy();
-  kit.processActions();
-
 }
