@@ -8,12 +8,12 @@
 // Animated, ever-changing rainbows.
 // by Mark Kriegsman
 
-#define DATA_PIN    18
+#define DATA_PIN    19
 //#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS    256
-#define BRIGHTNESS  50
+#define NUM_LEDS    12
+#define BRIGHTNESS 255
 
 CRGB leds[NUM_LEDS];
 
