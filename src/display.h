@@ -1,132 +1,34 @@
-#include "LedController.hpp"
-/*
- Pin assignments:
- DIN pin is connected to Arduino pin 11
- CLK pin is connected to Arduino pin 13
- CS pin is connected to Arduino pin 10
- We have only 1 MAX7219 module (cascaded devices)
-*/
-LedController lc = LedController(11,13,10,1); // [11 = DIN, 13 = CLK, 10 = CS, 1 = number of matrices]
+/// @file    Pride2015.ino
+/// @brief   Animated, ever-changing rainbows.
+/// @example Pride2015.ino
+#include "FastLED.h"
 
-int MATRIX_PIN = 17;
+// Pride2015
+// Animated, ever-changing rainbows.
+// by Mark Kriegsman
 
-ByteBlock digits[10] = {
-  {
-    B00000000,
-    B00011000,
-    B00100100,
-    B01000010,
-    B01000010,
-    B00100100,
-    B00011000,
-    B00000000
-  }, {
-    B00000000,
-    B00011100,
-    B00101100,
-    B01001100,
-    B00001100,
-    B00001100,
-    B00001100,
-    B00000000
-  }, {
-    B00000000,
-    B00111000,
-    B01101100,
-    B00011000,
-    B00110000,
-    B01100000,
-    B01111110,
-    B00000000
-  }, {
-    B00000000,
-    B00111100,
-    B01100110,
-    B00001100,
-    B00000110,
-    B01100110,
-    B00111100,
-    B00000000
-  }, {
-    B00000000,
-    B01100000,
-    B01100000,
-    B01101000,
-    B01111110,
-    B00001000,
-    B00001000,
-    B00000000
-  }, {
-    B00000000,
-    B01111110,
-    B01100000,
-    B01111000,
-    B00000110,
-    B01100110,
-    B00111100,
-    B00000000
-  }, {
-    B00000000,
-    B00001100,
-    B00111000,
-    B01100000,
-    B01111100,
-    B01100110,
-    B00111100,
-    B00000000
-  }, {
-    B00000000,
-    B01111110,
-    B00000110,
-    B00001100,
-    B00011000,
-    B00110000,
-    B01100000,
-    B00000000
-  }, {
-    B00000000,
-    B00111100,
-    B00100100,
-    B00011000,
-    B01100110,
-    B01000010,
-    B00111100,
-    B00000000
-  }, {
-    B00000000,
-    B00111100,
-    B01100110,
-    B00111110,
-    B00000110,
-    B00011100,
-    B00110000,
-    B00000000
-  }
-};
+#define DATA_PIN    19
+//#define CLK_PIN   4
+#define LED_TYPE    WS2812B
+#define COLOR_ORDER GRB
+#define NUM_LEDS    12
+#define BRIGHTNESS 255
 
-void dispalySetup() {
+#define WIDTH 32
+#define HEIGHT 8
+
+CRGB leds[NUM_LEDS];
+
+void ledsetup() {
+  delay(3000); // 3 second delay for recovery
   
-  pinMode(13, OUTPUT);
-    
-  for(unsigned int i = 0; i < 10; i++){
-    lc.rotate180(digits[i],&digits[i]);
-  }
-}
+  // tell FastLED about the LED strip configuration
+  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS)
+    .setCorrection(TypicalLEDStrip)
+    .setDither(BRIGHTNESS < 255);
 
-void setLEDs (unsigned int number) {
-
-  unsigned int places[4];
-
-  for(unsigned int i = 0;i < 4;i++){
-    unsigned int divisor = 1;
-    for(unsigned int j=0;j < i;j++){
-      divisor *= 10;
-    }
-
-    places[3-i] = number/divisor % 10;
-    lc.displayOnSegment(3-i,digits[places[3-i]]);
-  }
-
+  // set master brightness control
+  FastLED.setBrightness(BRIGHTNESS);
 }
 
 void switchLED(){
@@ -140,13 +42,18 @@ void switchLED(){
   LEDON = !LEDON;
 }
 
-void displayLoop() { 
-
-  lc.clearMatrix();
-  
-  for (unsigned int i = 0; i<10000; i++) {
-    delay(500);
-    switchLED();
-    setLEDs(i);
+void updateDisplay(uint8_t buffer[HEIGHT][WIDTH]) { 
+  bool flip = true;
+  int index = 0;
+  for (int x = 0; x < WIDTH; x++) {
+    for (int y = 0; y < HEIGHT; y++) {
+      if (flip) {
+        leds[index + HEIGHT - y] = buffer[WIDTH][HEIGHT];
+      }
+      else {
+        leds[index + y] = buffer[WIDTH][HEIGHT];
+      }
+    }
+    flip = !flip;
   }
 }
