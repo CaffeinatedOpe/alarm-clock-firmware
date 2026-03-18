@@ -11,6 +11,7 @@
 #include "timeTelling.h"
 #include "button.h"
 #include "ledRings.h"
+#include "characters.h"
 
 int L_BUTTON_PIN = 0;
 int R_BUTTON_PIN = 5;
