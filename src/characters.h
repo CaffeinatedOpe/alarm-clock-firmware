@@ -1,3 +1,4 @@
+// digits are in [y][x], while buffer is in [x][y]
 bool digits[10][8][7] = {
   {
     {0,0,0,0,0,0,0},
