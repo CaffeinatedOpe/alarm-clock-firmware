@@ -12,6 +12,7 @@
 #include "button.h"
 #include "ledRings.h"
 #include "characters.h"
+#include "display.h"
 
 int L_BUTTON_PIN = 0;
 int R_BUTTON_PIN = 5;
@@ -41,7 +42,8 @@ void setup(){
 void loop(){
    wifiLoop();
    manualTimeLoop();
-	ledloop();
+	//ledloop();
+   blankScreen();
    /*switch(getManualAlarmTime("07:30:30")){
       case IS_TIME:
          Serial.println("Time is Time");

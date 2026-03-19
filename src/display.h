@@ -7,23 +7,25 @@
 // Animated, ever-changing rainbows.
 // by Mark Kriegsman
 
-#define DATA_PIN    19
+#define SCREEN_DATA_PIN    18
 //#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS    12
+#define SCREEN_NUM_LEDS  256
 #define BRIGHTNESS 255
 
 #define WIDTH 32
 #define HEIGHT 8
 
-CRGB leds[NUM_LEDS];
+CRGB color = CRGB(255,255,255);
 
-void ledsetup() {
+CRGB screenLeds[SCREEN_NUM_LEDS];
+
+void screenLedsetup() {
   delay(3000); // 3 second delay for recovery
   
   // tell FastLED about the LED strip configuration
-  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS)
+  FastLED.addLeds<LED_TYPE,SCREEN_DATA_PIN,COLOR_ORDER>(screenLeds, SCREEN_NUM_LEDS)
     .setCorrection(TypicalLEDStrip)
     .setDither(BRIGHTNESS < 255);
 
@@ -31,15 +33,11 @@ void ledsetup() {
   FastLED.setBrightness(BRIGHTNESS);
 }
 
-void switchLED(){
-
-  static bool LEDON = false;
-  if(LEDON){
-    digitalWrite(13, LOW);
-  }else{
-    digitalWrite(13, HIGH);
+void blankScreen() {
+  for (int i = 0; i < SCREEN_NUM_LEDS; i++){
+    screenLeds[i] = color;
   }
-  LEDON = !LEDON;
+  FastLED.show();
 }
 
 void updateDisplay(uint8_t buffer[HEIGHT][WIDTH]) { 
@@ -48,12 +46,13 @@ void updateDisplay(uint8_t buffer[HEIGHT][WIDTH]) {
   for (int x = 0; x < WIDTH; x++) {
     for (int y = 0; y < HEIGHT; y++) {
       if (flip) {
-        leds[index + HEIGHT - y] = buffer[WIDTH][HEIGHT];
+        screenLeds[index + HEIGHT - y] = buffer[WIDTH][HEIGHT];
       }
       else {
-        leds[index + y] = buffer[WIDTH][HEIGHT];
+        screenLeds[index + y] = buffer[WIDTH][HEIGHT];
       }
     }
     flip = !flip;
   }
+  FastLED.show();
 }
