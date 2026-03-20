@@ -4,83 +4,199 @@
 #include "FastLED.h"
 #include "characters.h"
 
+#include "font_huge.h"
+#include "font_large.h"
+#include "font_small.h"
+
 // Pride2015
 // Animated, ever-changing rainbows.
 // by Mark Kriegsman
 
-#define SCREEN_DATA_PIN    18
-//#define CLK_PIN   4
-#define LED_TYPE    WS2812B
+#define SCREEN_DATA_PIN 18
+// #define CLK_PIN   4
+#define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
-#define SCREEN_NUM_LEDS  256
-#define BRIGHTNESS 255
+#define SCREEN_NUM_LEDS 256
+#define BRIGHTNESS 75
 
 #define WIDTH 32
 #define HEIGHT 8
 
-CRGB color = CRGB(255,0,255);
+CRGB color = CRGB(255, 0, 255);
 
-//buffer 0x0 is the top left pixel
+// buffer 0x0 is the top left pixel
 CRGB buffer[WIDTH][HEIGHT];
 
 CRGB screenLeds[SCREEN_NUM_LEDS];
 
-void screenLedsetup() {
-  delay(1); // 1 second delay for recovery
-  
-  // tell FastLED about the LED strip configuration
-  FastLED.addLeds<LED_TYPE,SCREEN_DATA_PIN,COLOR_ORDER>(screenLeds, SCREEN_NUM_LEDS)
-    .setCorrection(TypicalLEDStrip)
-    .setDither(BRIGHTNESS < 255);
+typedef enum
+{
+	EIGHTBYEIGHT,
+	SIXBYEIGHT,
+	FOURBYSEVEN
+} FontOptions;
+FontOptions font = EIGHTBYEIGHT;
 
-  // set master brightness control
-  FastLED.setBrightness(BRIGHTNESS);
+void screenLedsetup()
+{
+	delay(3); // 1 second delay for recovery
+
+	// tell FastLED about the LED strip configuration
+	FastLED.addLeds<LED_TYPE, SCREEN_DATA_PIN, COLOR_ORDER>(screenLeds, SCREEN_NUM_LEDS)
+			.setCorrection(TypicalLEDStrip)
+			.setDither(BRIGHTNESS < 255);
+
+	// set master brightness control
+	FastLED.setBrightness(BRIGHTNESS);
 }
 
-void blankScreen() {
-	CRGB off = CRGB(0,0,0);
-	for (int y = 0; y < HEIGHT; y++) {
-		for (int x = 0; x < WIDTH; x++) {
+void blankScreen()
+{
+	CRGB off = CRGB(0, 0, 0);
+	for (int y = 0; y < HEIGHT; y++)
+	{
+		for (int x = 0; x < WIDTH; x++)
+		{
 			buffer[x][y] = off;
 		}
 	}
-  for (int i = 0; i < SCREEN_NUM_LEDS; i++){
-    screenLeds[i] = off;
-  }
-  FastLED.show();
+	for (int i = 0; i < SCREEN_NUM_LEDS; i++)
+	{
+		screenLeds[i] = off;
+	}
+	FastLED.show();
+}
+
+void clearBuffer()
+{
+	CRGB off = CRGB(0, 0, 0);
+	for (int y = 0; y < HEIGHT; y++)
+	{
+		for (int x = 0; x < WIDTH; x++)
+		{
+			buffer[x][y] = off;
+		}
+	}
 }
 
 // digits are in [y][x], while buffer is in [x][y]
 // offset is the number of pixels from the right of the screen, or it at least should be.
-void writeNum(int digit, int offset) {
-	//characters are 6x8
-	for (int y = 0; y < 8; y++) {
-		for (int x = 0; x < 7; x++) {
-			if(digits[digit][y][x]) {
+void writeNum(int digit, int offset)
+{
+	for (int y = 0; y < 8; y++)
+	{
+		for (int x = 0; x < 7; x++)
+		{
+			if (digits[digit][y][x])
+			{
 				buffer[x + offset][y] = color;
 			}
-			else{
-				buffer[x + offset][y] = CRGB(0,0,0);
+			else
+			{
+				buffer[x + offset][y] = CRGB(0, 0, 0);
 			}
 		}
 	}
 }
 
+void writeChar(int asciiCode, int offset)
+{
+	switch (font)
+	{
+	case EIGHTBYEIGHT:
+		for (int y = 0; y < 8; y++)
+		{
+			bool bits[8];
+			for (int i = 0; i != 8; i++)
+			{
+				bits[i] = (console_font_8x8[(asciiCode * 8) + y] & (1 << i));
+			}
+			for (int x = 0; x < 8; x++)
+			{
+				if (bits[7 - x])
+				{
+					buffer[x + offset][y] = color;
+				}
+				else
+				{
+					buffer[x + offset][y] = CRGB(0, 0, 0);
+				}
+			}
+		}
+		break;
+	case SIXBYEIGHT:
+		for (int y = 0; y < 8; y++)
+		{
+			bool bits[8];
+			for (int i = 0; i != 8; i++)
+			{
+				bits[i] = (console_font_6x8[(asciiCode * 8) + y] & (1 << i));
+			}
+			for (int x = 0; x < 6; x++)
+			{
+				if (bits[7 - x])
+				{
+					buffer[x + offset][y+1] = color;
+				}
+				else
+				{
+					buffer[x + offset][y+1] = CRGB(0, 0, 0);
+				}
+			}
+		}
+		break;
+	case FOURBYSEVEN:
+		for (int y = 0; y < 7; y++)
+		{
+			bool bits[8];
+			for (int i = 0; i != 8; i++)
+			{
+				bits[i] = (console_font_4x7[(asciiCode * 7) + y] & (1 << i));
+			}
+			for (int x = 0; x < 4; x++)
+			{
+				if (bits[7 - x])
+				{
+					buffer[x + offset][y+1] = color;
+				}
+				else
+				{
+					buffer[x + offset][y+1] = CRGB(0, 0, 0);
+				}
+			}
+		}
+		break;
+	}
+}
+
+void test()
+{
+	for (int x = 0; x < WIDTH; x++)
+	{
+		buffer[x][0] = CRGB(0, 255, 0);
+	}
+}
+
 // led matrix starts at top right, data path runs vertically
-void refreshDisplay() { 
-  bool flip = true;
-  int index = 0;
-  for (int x = 0; x < WIDTH; x++) {
-    for (int y = 0; y < HEIGHT; y++) {
-      if (flip) {
-        screenLeds[index] = buffer[WIDTH - x][y];
-      }
-      else {
-        screenLeds[index] = buffer[WIDTH - x][HEIGHT - y];
-      }
+void refreshDisplay()
+{
+	bool flip = true;
+	int index = 0;
+	for (int x = 0; x < WIDTH; x++)
+	{
+		for (int y = 0; y < HEIGHT; y++)
+		{
+			if (!flip)
+			{
+				screenLeds[index] = buffer[WIDTH - x - 1][y];
+			}
+			else
+			{
+				screenLeds[index] = buffer[WIDTH - x - 1][HEIGHT - y - 1];
+			}
 			index++;
-    }
-    flip = !flip;
-  }
-  FastLED.show();
+		}
+		flip = !flip;
+	}
+	FastLED.show();
 }

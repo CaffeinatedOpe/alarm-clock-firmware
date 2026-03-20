@@ -39,16 +39,24 @@ void setup()
 	std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
 	screenLedsetup();
 	blankScreen();
-	writeNum(4, 8);
-	writeNum(2, 16);
+	//test();
+	writeChar(52, 8);
+	writeChar(50, 16);
 	refreshDisplay();
 	// ledsetup();
 }
 
 void loop()
 {
-	wifiLoop();
-	manualTimeLoop();
+	//wifiLoop();
+	//manualTimeLoop();
+	clearBuffer();
+	writeChar(49, 0);
+	writeChar(50, 8);
+	writeChar(56, 16);
+	writeChar(56, 24);
+	delay(2000);
+	refreshDisplay();
 	// ledloop();
 	/*switch(getManualAlarmTime("07:30:30")){
 		 case IS_TIME:

@@ -8,7 +8,7 @@
 // Animated, ever-changing rainbows.
 // by Mark Kriegsman
 
-#define DATA_PIN    18
+#define DATA_PIN    19
 //#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
