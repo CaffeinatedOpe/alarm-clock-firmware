@@ -11,7 +11,7 @@
 #include "timeTelling.h"
 #include "button.h"
 // #include "ledRings.h"
-#include "display.h"
+#include "displayManager.h"
 
 int L_BUTTON_PIN = 0;
 int R_BUTTON_PIN = 5;
@@ -37,28 +37,20 @@ void setup()
 	// autoTimeSetup();
 	manualTimeSetup(7, 30, 0);
 	std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
-	screenLedsetup();
-	blankScreen();
 	//test();
-	writeChar(52, 8);
-	writeChar(50, 16);
-	refreshDisplay();
 	// ledsetup();
+	initScreen();
+	writeString("testing");
 }
 
 void loop()
 {
 	//wifiLoop();
-	//manualTimeLoop();
-	clearBuffer();
-	writeChar(49, 0);
-	writeChar(50, 8);
-	writeChar(56, 16);
-	writeChar(56, 24);
-	delay(2000);
-	refreshDisplay();
+	manualTimeLoop();
+	writeTime(getMinutes(), getHours());
+
 	// ledloop();
-	/*switch(getManualAlarmTime("07:30:30")){
+	/*switch(getManualAlarmTimeCompare("07:30:30")){
 		 case IS_TIME:
 				Serial.println("Time is Time");
 				switch(buttonL.getState())

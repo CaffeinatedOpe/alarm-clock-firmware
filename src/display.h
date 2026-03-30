@@ -2,7 +2,6 @@
 /// @brief   Animated, ever-changing rainbows.
 /// @example Pride2015.ino
 #include "FastLED.h"
-#include "characters.h"
 
 #include "font_huge.h"
 #include "font_large.h"
@@ -35,7 +34,7 @@ typedef enum
 	SIXBYEIGHT,
 	FOURBYSEVEN
 } FontOptions;
-FontOptions font = EIGHTBYEIGHT;
+FontOptions font = FOURBYSEVEN;
 
 void screenLedsetup()
 {
@@ -75,26 +74,6 @@ void clearBuffer()
 		for (int x = 0; x < WIDTH; x++)
 		{
 			buffer[x][y] = off;
-		}
-	}
-}
-
-// digits are in [y][x], while buffer is in [x][y]
-// offset is the number of pixels from the right of the screen, or it at least should be.
-void writeNum(int digit, int offset)
-{
-	for (int y = 0; y < 8; y++)
-	{
-		for (int x = 0; x < 7; x++)
-		{
-			if (digits[digit][y][x])
-			{
-				buffer[x + offset][y] = color;
-			}
-			else
-			{
-				buffer[x + offset][y] = CRGB(0, 0, 0);
-			}
 		}
 	}
 }
@@ -199,4 +178,15 @@ void refreshDisplay()
 		flip = !flip;
 	}
 	FastLED.show();
+}
+
+void addTimeSeparator() {
+	buffer[15][0] = color;
+	buffer[15][1] = color;
+	buffer[16][0] = color;
+	buffer[16][1] = color;
+	buffer[15][6] = color;
+	buffer[15][7] = color;
+	buffer[16][6] = color;
+	buffer[16][7] = color;
 }
