@@ -9,15 +9,14 @@
 	copies or substantial portions of the Software.
 */
 
-#include <WiFi.h>
-#include <sys/time.h>
+//#include <WiFi.h>
+//#include <sys/time.h>
 #include "time.h"
 
 const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 3600;
-
-void autoTimeSetup(char *ssid, char *password)
+/*void autoTimeSetup(char *ssid, char *password)
 {
 	Serial.begin(115200);
 
@@ -59,7 +58,7 @@ bool getAutoTime(char *alarmTime)
 	struct tm timeinfo;
 
 	return strcmp("%A, %H:%M:%S", alarmTime) == 0;
-}
+}*/
 
 // Set your manual time: Year, Month (0-11), Day, Hour, Min, Sec
 void setManualTime(int hour, int min, int sec)
@@ -80,8 +79,6 @@ void setManualTime(int hour, int min, int sec)
 
 void manualTimeSetup(int hour, int min, int sec)
 {
-	Serial.begin(115200);
-	// Example: Set to Feb 12, 2026, 10:00:00
 	setManualTime(hour, min, sec);
 	Serial.println("Time Set Manually");
 }
