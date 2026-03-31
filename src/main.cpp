@@ -31,20 +31,18 @@ void setup()
 	// autoTimeSetup();
 	manualTimeSetup(7, 30, 0);
 	std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
-	//test();
-	// ledsetup();
-	//initScreen();
+	//ledsetup();
+	initScreen();
 	//writeString("testing");
 }
 
 void loop()
 {
-	//wifiLoop();
+	wifiLoop();
 	//manualTimeLoop();
-	//writeTime(getMinutes(), getHours());
+	writeTime(getMinutes(), getHours());
 
-	// ledloop();
-	audioPeriodic();
+	//audioPeriodic();
 	/*switch(getManualAlarmTimeCompare("07:30:30")){
 		 case IS_TIME:
 				Serial.println("Time is Time");
