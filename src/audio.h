@@ -1,11 +1,3 @@
-/**
- * @file player-sd-audiokit.ino
- * @brief see https://github.com/pschatzmann/arduino-audio-tools/blob/main/examples/examples-audiokit/player-sd-audiokit/README.md
- * Make sure that the pins are set to off, on, on, off, off
- * @author Phil Schatzmann
- * @copyright GPLv3
- */
-
 #include "AudioTools.h"
 #include "AudioTools/AudioLibs/AudioBoardStream.h"
 #include "AudioTools/Disk/AudioSourceSD.h" // or AudioSourceIdxSD.h
@@ -24,22 +16,19 @@ typedef enum{
 } state;
 
 void audioSetup() {
-  // setup output
   auto cfg = kit.defaultConfig(TX_MODE);
   // sd_active is setting up SPI with the right SD pins by calling 
   // SPI.begin(PIN_AUDIO_KIT_SD_CARD_CLK, PIN_AUDIO_KIT_SD_CARD_MISO, PIN_AUDIO_KIT_SD_CARD_MOSI, PIN_AUDIO_KIT_SD_CARD_CS);
   cfg.sd_active = true;
   kit.begin(cfg);
 
+  // setup player
   player.setVolume(0.7);
   player.begin();
-
-  // select file with setPath() or setIndex()
-  //player.setPath("/ZZ Top/Unknown Album/Lowrider.mp3");
-  //player.setIndex(1); // 2nd file
-
+	kit.addDefaultActions();
 }
 
 void audioPeriodic() {
   player.copy();
+	kit.processActions();
 }
