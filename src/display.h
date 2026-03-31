@@ -1,18 +1,10 @@
-/// @file    Pride2015.ino
-/// @brief   Animated, ever-changing rainbows.
-/// @example Pride2015.ino
 #include "FastLED.h"
 
 #include "font_huge.h"
 #include "font_large.h"
 #include "font_small.h"
 
-// Pride2015
-// Animated, ever-changing rainbows.
-// by Mark Kriegsman
-
 #define SCREEN_DATA_PIN 18
-// #define CLK_PIN   4
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
 #define SCREEN_NUM_LEDS 256
@@ -22,6 +14,7 @@
 #define HEIGHT 8
 
 CRGB color = CRGB(255, 0, 255);
+CRGB dotColor = CRGB(255,255,255);
 
 // buffer 0x0 is the top left pixel
 CRGB buffer[WIDTH][HEIGHT];
@@ -34,7 +27,7 @@ typedef enum
 	SIXBYEIGHT,
 	FOURBYSEVEN
 } FontOptions;
-FontOptions font = FOURBYSEVEN;
+FontOptions font = SIXBYEIGHT;
 
 void screenLedsetup()
 {
@@ -180,13 +173,13 @@ void refreshDisplay()
 	FastLED.show();
 }
 
-void addTimeSeparator() {
-	buffer[15][0] = color;
-	buffer[15][1] = color;
-	buffer[16][0] = color;
-	buffer[16][1] = color;
-	buffer[15][6] = color;
-	buffer[15][7] = color;
-	buffer[16][6] = color;
-	buffer[16][7] = color;
+void addTimeSeparator(int height) {
+	buffer[15][9-height] = dotColor;
+	buffer[15][8-height] = dotColor;
+	buffer[16][9-height] = dotColor;
+	buffer[16][8-height] = dotColor;
+	buffer[15][6] = dotColor;
+	buffer[15][7] = dotColor;
+	buffer[16][6] = dotColor;
+	buffer[16][7] = dotColor;
 }
