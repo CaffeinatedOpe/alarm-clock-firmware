@@ -32,7 +32,6 @@ AsyncWebServer server(80);
 
 void wifiSetup()
 {
-	Serial.begin(115200);
 	Serial.println();
 
 	if (!WiFi.softAP("Miss Minutes"))
