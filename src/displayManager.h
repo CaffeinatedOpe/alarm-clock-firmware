@@ -28,40 +28,47 @@ void writeString(String text)
 	}
 	refreshDisplay();
 }
+
 void writeTime(int min, int hour)
 {
+	clearBuffer();
 	char text[4];
 	int index = 0;
 	sprintf(text, "%d", hour * 100 + min);
-	int width = 6;
-	int offset = 0;
+	int width = 8;
+	int gap = 0;
+	int height = 8;
 	switch (font)
 	{
 	case EIGHTBYEIGHT:
-		width = 8;
 		break;
 	case SIXBYEIGHT:
 		width = 6;
-		offset = 4;
+		index = 4;
+		gap = 1;
+		height = 7;
 		break;
 	case FOURBYSEVEN:
 		width = 6;
-		offset = 4;
+		index = 4;
+		gap = 1;
+		height = 7;
 		font = SIXBYEIGHT;
 		break;
 	}
 	if (hour < 10)
 	{
-		writeChar((int)text[0], index + width);
-		writeChar((int)text[1], index + 2 * width);
-		writeChar((int)text[2], index + 3 * width);
+		writeChar((int)text[0], index + width - gap);
+		writeChar((int)text[1], index + gap + (2 * width));
+		writeChar((int)text[2], index + gap + (3 * width));
 	}
 	else
 	{
-		writeChar((int)text[0], 7);
-		writeChar((int)text[1], 15);
-		writeChar((int)text[2], 23);
+		writeChar((int)text[0], index - gap);
+		writeChar((int)text[1], index - gap + width);
+		writeChar((int)text[2], index + gap + (2 * width));
+		writeChar((int)text[3], index + gap + (3 * width));
 	}
-	addTimeSeparator();
+	addTimeSeparator(height);
 	refreshDisplay();
 }
