@@ -1,8 +1,8 @@
-#include "FastLED.h"
+#include <FastLED.h>
 
-#include "font_huge.h"
-#include "font_large.h"
-#include "font_small.h"
+#include "../fonts/font_huge.h"
+#include "../fonts/font_large.h"
+#include "../fonts/font_small.h"
 
 #define SCREEN_DATA_PIN 18
 #define LED_TYPE WS2812B

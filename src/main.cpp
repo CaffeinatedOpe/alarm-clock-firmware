@@ -1,12 +1,12 @@
-#include "audio.h"
+#include "components/audio.h"
 #include <stdio.h>
-#include "wifiCreator.h"
-#include "timeTelling.h"
-#include "button.h"
+#include "components/wifiCreator.h"
+#include "components/timeTelling.h"
+#include "components/button.h"
 // #include "ledRings.h"
 #include "displayManager.h"
 
-int L_BUTTON_PIN = 23;
+int L_BUTTON_PIN = 22;
 int R_BUTTON_PIN = 5;
 
 Button buttonL;
