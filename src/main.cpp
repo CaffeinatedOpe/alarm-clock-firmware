@@ -6,12 +6,10 @@
 // #include "ledRings.h"
 #include "displayManager.h"
 
-int L_BUTTON_PIN = 22;
-int R_BUTTON_PIN = 5;
+#include <iostream>
+#include <vector>
 
-Button buttonL;
-Button buttonR;
-
+using namespace std;
 typedef enum
 {
 	BUTTON_PRESSED,
@@ -21,28 +19,54 @@ typedef enum
 	IS_NOT_TIME
 } Status;
 
+void processButtons()
+{
+	getButtonEvents();
+	for (BUTTONEVENTS i : buttonEvents)
+	{
+		switch (i)
+		{
+			case LEFT_PRESS:
+			player.setActive(true);
+			buttonEvents.erase(buttonEvents.begin());
+		case RIGHT_PRESS:
+			player.next();
+			Serial.println(player.audioInfo());
+			buttonEvents.erase(buttonEvents.begin());
+			case LEFT_RELEASE:
+			buttonEvents.erase(buttonEvents.begin());
+			case RIGHT_RELEASE:
+			buttonEvents.erase(buttonEvents.begin());
+		}
+	}
+}
+
+//put things in here that only need to run every loop *sometimes*
+vector<void(*)()> loopFunctions = {audioPeriodic, processButtons};
+
 void setup()
 {
 	Serial.begin(115200);
 	audioSetup();
-	//wifiSetup();
-	buttonL.init(L_BUTTON_PIN);
-	buttonR.init(R_BUTTON_PIN);
-	// autoTimeSetup();
+	// wifiSetup();
+	//  autoTimeSetup();
 	manualTimeSetup(7, 30, 0);
-	std::vector<Status> status = {BUTTON_PRESSED, BUTTON_NOT_PRESSED, TIME_UPDATE, IS_TIME, IS_NOT_TIME};
-	//ledsetup();
+
+	// ledsetup();
 	initScreen();
-	//writeString("testing");
+	button_init();
+	// writeString("testing");
+	player.setActive(false);
 }
 
 void loop()
 {
 	wifiLoop();
-	//manualTimeLoop();
+	// manualTimeLoop();
 	writeTime(getMinutes(), getHours());
-
-	//audioPeriodic();
+	for (int i; i < loopFunctions.size(); i++) {	
+		loopFunctions[i]();
+	}
 	/*switch(getManualAlarmTimeCompare("07:30:30")){
 		 case IS_TIME:
 				Serial.println("Time is Time");
