@@ -19,6 +19,13 @@ typedef enum
 	IS_NOT_TIME
 } Status;
 
+void updateWifi() {
+	if (wifiState == UPDATETIME) {
+		manualTimeSetup(receivedHours, receivedMinutes, receivedSeconds);
+		wifiState = READY;
+	}
+}
+
 void processButtons()
 {
 	getButtonEvents();
@@ -26,29 +33,37 @@ void processButtons()
 	{
 		switch (i)
 		{
-			case LEFT_PRESS:
+		case LEFT_PRESS:
 			player.setActive(true);
 			buttonEvents.erase(buttonEvents.begin());
+			Serial.println("left press");
+			break;
 		case RIGHT_PRESS:
 			player.next();
 			Serial.println(player.audioInfo());
 			buttonEvents.erase(buttonEvents.begin());
-			case LEFT_RELEASE:
+			Serial.println("right press");
+			break;
+		case LEFT_RELEASE:
 			buttonEvents.erase(buttonEvents.begin());
-			case RIGHT_RELEASE:
+			Serial.println("left release");
+			break;
+		case RIGHT_RELEASE:
 			buttonEvents.erase(buttonEvents.begin());
+			Serial.println("right release");
+			break;
 		}
 	}
 }
 
 //put things in here that only need to run every loop *sometimes*
-vector<void(*)()> loopFunctions = {audioPeriodic, processButtons};
+vector<void(*)()> loopFunctions = {audioPeriodic, processButtons, updateWifi};
 
 void setup()
 {
 	Serial.begin(115200);
 	audioSetup();
-	// wifiSetup();
+	wifiSetup();
 	//  autoTimeSetup();
 	manualTimeSetup(7, 30, 0);
 
@@ -64,7 +79,7 @@ void loop()
 	wifiLoop();
 	// manualTimeLoop();
 	writeTime(getMinutes(), getHours());
-	for (int i; i < loopFunctions.size(); i++) {	
+	for (int i = 0; i < loopFunctions.size(); i++) {	
 		loopFunctions[i]();
 	}
 	/*switch(getManualAlarmTimeCompare("07:30:30")){
