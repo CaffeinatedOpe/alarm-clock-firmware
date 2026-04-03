@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "components/wifiCreator.h"
 #include "components/timeTelling.h"
-#include "components/button.h"
+#include "components/buttons/buttons.h"
 // #include "ledRings.h"
 #include "displayManager.h"
 
@@ -10,6 +10,10 @@
 #include <vector>
 
 using namespace std;
+
+//don't ask
+Buttons buttons = Buttons();
+
 typedef enum
 {
 	BUTTON_PRESSED,
@@ -30,20 +34,20 @@ vector<void(*)()> loopFunctions = {};
 
 void processButtons()
 {
-	getButtonEvents();
-	for (BUTTONEVENTS i : buttonEvents)
+	buttons.getButtonEvents();
+	for (Buttons::BUTTONEVENTS i : buttons.buttonEvents)
 	{
 		switch (i)
 		{
-		case LEFT_PRESS:
+		case Buttons::LEFT_PRESS:
 			Serial.println("left press");
 			if (audioStatus==SILENT){
 				startAudio();
 				loopFunctions.push_back(playAudioLoop);
 			}
-			buttonEvents.erase(buttonEvents.begin());
+			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
-		case RIGHT_PRESS:
+		case Buttons::RIGHT_PRESS:
 			Serial.println("right press");
 			toggleAudioState();
 			if (audioStatus==SILENT){ //this will be post-state swap
@@ -51,15 +55,15 @@ void processButtons()
 			} else {
 				loopFunctions.push_back(playAudioLoop);
 			}
-			buttonEvents.erase(buttonEvents.begin());
+			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
-		case LEFT_RELEASE:
+		case Buttons::LEFT_RELEASE:
 			Serial.println("left release");
-			buttonEvents.erase(buttonEvents.begin());
+			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
-		case RIGHT_RELEASE:
+		case Buttons::RIGHT_RELEASE:
 			Serial.println("right release");
-			buttonEvents.erase(buttonEvents.begin());
+			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		}
 	}
@@ -77,7 +81,7 @@ void setup()
 
 	// ledsetup();
 	initScreen();
-	button_init();
+	buttons.init();
 	loopFunctions.push_back(processButtons); 
 	loopFunctions.push_back(updateWifi);
 	// writeString("testing");

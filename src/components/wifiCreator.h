@@ -3,15 +3,20 @@
 #include <ESPAsyncWebServer.h> //https://github.com/me-no-dev/ESPAsyncWebServer using the latest dev version from @me-no-dev
 #include <DNSServer.h>
 
-
 int receivedSeconds;
 int receivedMinutes;
 int receivedHours;
 
 typedef enum{
 	READY,
-	UPDATETIME
+	UPDATETIME,
+	UPDATEVOLUME,
+	UPDATECOLOR,
+	UPDATEDOTCOLOR
 } WIFISTATE;
+
+int receivedScreenColor[3];
+int receivedScreenDotColor[3];
 
 WIFISTATE wifiState = READY;
 
@@ -87,6 +92,48 @@ public:
   		  Serial.print(inputSeconds);
 				Serial.print(inputMinutes);
 				Serial.print(inputHours);
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateScreenBrightnes") {
+				String inputBrightness;
+  		  if (request->hasParam("value")) {
+  		    inputBrightness = request->getParam("values")->value();
+					//screenBrightness = inputBrightness.toInt();
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateRingBrightnes") {
+				String inputBrightness;
+  		  if (request->hasParam("value")) {
+  		    inputBrightness = request->getParam("values")->value();
+					//screenBrightness = inputBrightness.toInt();
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateNumberColor") {
+				String inputR;
+				String inputG;
+				String inputB;
+  		  if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b")) {
+  		    inputR = request->getParam("r")->value();
+					inputG = request->getParam("g")->value();
+					inputB = request->getParam("b")->value();
+					receivedScreenColor[0] = inputR.toInt();
+					receivedScreenColor[1] = inputG.toInt();
+					receivedScreenColor[2] = inputB.toInt();
+					wifiState = UPDATECOLOR;
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateDotColor") {
+				String inputR;
+				String inputG;
+				String inputB;
+  		  if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b")) {
+  		    inputR = request->getParam("r")->value();
+					inputG = request->getParam("g")->value();
+					inputB = request->getParam("b")->value();
+					receivedScreenDotColor[0] = inputR.toInt();
+					receivedScreenDotColor[1] = inputG.toInt();
+					receivedScreenDotColor[2] = inputB.toInt();
+					wifiState = UPDATEDOTCOLOR;
+  		  }
   		  request->send(200, "text/plain", "OK");
 		} else
 		{
