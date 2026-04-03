@@ -1,8 +1,9 @@
+#include "display.h"
 #include <FastLED.h>
 
-#include "../fonts/font_huge.h"
-#include "../fonts/font_large.h"
-#include "../fonts/font_small.h"
+#include "fonts/font_huge.h"
+#include "fonts/font_large.h"
+#include "fonts/font_small.h"
 
 #define SCREEN_DATA_PIN 18
 #define LED_TYPE WS2812B
@@ -13,25 +14,8 @@
 #define WIDTH 32
 #define HEIGHT 8
 
-CRGB color = CRGB(255, 0, 255);
-CRGB dotColor = CRGB(255,255,255);
-
-// buffer 0x0 is the top left pixel
-CRGB buffer[WIDTH][HEIGHT];
-
-CRGB screenLeds[SCREEN_NUM_LEDS];
-
-typedef enum
-{
-	EIGHTBYEIGHT,
-	SIXBYEIGHT,
-	FOURBYSEVEN
-} FontOptions;
-FontOptions font = SIXBYEIGHT;
-
-void screenLedsetup()
-{
-	delay(3); // 1 second delay for recovery
+void Display::init(){
+	delay(20); // 1 second delay for recovery
 
 	// tell FastLED about the LED strip configuration
 	FastLED.addLeds<LED_TYPE, SCREEN_DATA_PIN, COLOR_ORDER>(screenLeds, SCREEN_NUM_LEDS)
@@ -42,7 +26,7 @@ void screenLedsetup()
 	FastLED.setBrightness(BRIGHTNESS);
 }
 
-void blankScreen()
+void Display::blankScreen()
 {
 	CRGB off = CRGB(0, 0, 0);
 	for (int y = 0; y < HEIGHT; y++)
@@ -59,7 +43,7 @@ void blankScreen()
 	FastLED.show();
 }
 
-void clearBuffer()
+void Display::clearBuffer()
 {
 	CRGB off = CRGB(0, 0, 0);
 	for (int y = 0; y < HEIGHT; y++)
@@ -71,7 +55,7 @@ void clearBuffer()
 	}
 }
 
-void writeChar(int asciiCode, int offset)
+void Display::writeChar(int asciiCode, int offset)
 {
 	switch (font)
 	{
@@ -141,16 +125,8 @@ void writeChar(int asciiCode, int offset)
 	}
 }
 
-void test()
-{
-	for (int x = 0; x < WIDTH; x++)
-	{
-		buffer[x][0] = CRGB(0, 255, 0);
-	}
-}
-
 // led matrix starts at top right, data path runs vertically
-void refreshDisplay()
+void Display::refreshDisplay()
 {
 	bool flip = true;
 	int index = 0;
@@ -173,7 +149,7 @@ void refreshDisplay()
 	FastLED.show();
 }
 
-void addTimeSeparator(int height) {
+void Display::addTimeSeparator(int height) {
 	buffer[15][9-height] = dotColor;
 	buffer[15][8-height] = dotColor;
 	buffer[16][9-height] = dotColor;
@@ -182,4 +158,72 @@ void addTimeSeparator(int height) {
 	buffer[15][7] = dotColor;
 	buffer[16][6] = dotColor;
 	buffer[16][7] = dotColor;
+}
+
+void Display::writeString(String text)
+{
+	int index = 0;
+	clearBuffer();
+	for (int i = 0; i < text.length(); i++)
+	{
+		int character = (int)text[i];
+		writeChar(character, index);
+		switch (font)
+		{
+		case EIGHTBYEIGHT:
+			index = index + 8;
+			break;
+		case SIXBYEIGHT:
+			index = index + 6;
+			break;
+		case FOURBYSEVEN:
+			index = index + 4;
+			break;
+		}
+	}
+	refreshDisplay();
+}
+
+void Display::writeTime(int min, int hour)
+{
+	clearBuffer();
+	char text[4];
+	int index = 0;
+	sprintf(text, "%d", hour * 100 + min);
+	int width = 8;
+	int gap = 0;
+	int height = 8;
+	switch (font)
+	{
+	case EIGHTBYEIGHT:
+		break;
+	case SIXBYEIGHT:
+		width = 6;
+		index = 4;
+		gap = 1;
+		height = 7;
+		break;
+	case FOURBYSEVEN:
+		width = 6;
+		index = 4;
+		gap = 1;
+		height = 7;
+		font = SIXBYEIGHT;
+		break;
+	}
+	if (hour < 10)
+	{
+		writeChar((int)text[0], index + width - gap);
+		writeChar((int)text[1], index + gap + (2 * width));
+		writeChar((int)text[2], index + gap + (3 * width));
+	}
+	else
+	{
+		writeChar((int)text[0], index - gap);
+		writeChar((int)text[1], index - gap + width);
+		writeChar((int)text[2], index + gap + (2 * width));
+		writeChar((int)text[3], index + gap + (3 * width));
+	}
+	addTimeSeparator(height);
+	refreshDisplay();
 }

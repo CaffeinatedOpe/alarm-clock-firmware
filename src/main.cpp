@@ -4,7 +4,7 @@
 #include "components/timeTelling.h"
 #include "components/buttons/buttons.h"
 // #include "ledRings.h"
-#include "displayManager.h"
+#include "components/display/display.h"
 
 #include <iostream>
 #include <vector>
@@ -13,6 +13,7 @@ using namespace std;
 
 //don't ask
 Buttons buttons = Buttons();
+Display display = Display();
 
 typedef enum
 {
@@ -80,8 +81,8 @@ void setup()
 	manualTimeSetup(7, 30, 0);
 
 	// ledsetup();
-	initScreen();
 	buttons.init();
+	display.init();
 	loopFunctions.push_back(processButtons); 
 	loopFunctions.push_back(updateWifi);
 	// writeString("testing");
@@ -91,7 +92,7 @@ void loop()
 {
 	wifiLoop();
 	// manualTimeLoop();
-	writeTime(getMinutes(), getHours());
+	display.writeTime(getMinutes(), getHours());
 	for (int i = 0; i < loopFunctions.size(); i++) {	
 		loopFunctions[i]();
 	}
