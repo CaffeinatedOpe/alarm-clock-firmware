@@ -14,7 +14,7 @@ public:
 
 	void setColor(int, int, int);
 	void setDotColor(int, int, int);
-	int brightness;
+	void setBrightness(int);
 	typedef enum
 	{
 		EIGHTBYEIGHT,

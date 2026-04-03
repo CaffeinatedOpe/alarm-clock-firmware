@@ -24,6 +24,8 @@ void Display::init(){
 
 	// set master brightness control
 	FastLED.setBrightness(BRIGHTNESS);
+	color = CRGB(0, 255, 255);
+	dotColor = CRGB(255, 225, 255);
 }
 
 void Display::blankScreen()
@@ -226,4 +228,15 @@ void Display::writeTime(int min, int hour)
 	}
 	addTimeSeparator(height);
 	refreshDisplay();
+}
+
+void Display::setColor(int r, int g, int b) {
+	color = CRGB(r, g, b);
+}
+void Display::setDotColor(int r, int g, int b) {
+	dotColor = CRGB(r, g, b);
+}
+
+void Display::setBrightness(int brightness) {
+	FastLED.setBrightness(brightness);
 }

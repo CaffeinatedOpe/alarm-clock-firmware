@@ -1,6 +1,5 @@
 #include "components/audio.h"
 #include <stdio.h>
-#include "components/wifiCreator.h"
 #include "components/timeTelling.h"
 #include "components/buttons/buttons.h"
 // #include "ledRings.h"
@@ -8,6 +7,8 @@
 
 #include <iostream>
 #include <vector>
+
+#include "htmlData.h"
 
 using namespace std;
 
@@ -23,6 +24,125 @@ typedef enum
 	IS_TIME,
 	IS_NOT_TIME
 } Status;
+
+#include <WiFi.h>
+#include <AsyncTCP.h>					 //https://github.com/me-no-dev/AsyncTCP using the latest dev version from @me-no-dev
+#include <ESPAsyncWebServer.h> //https://github.com/me-no-dev/ESPAsyncWebServer using the latest dev version from @me-no-dev
+#include <DNSServer.h>
+
+int receivedSeconds;
+int receivedMinutes;
+int receivedHours;
+
+typedef enum{
+	READY,
+	UPDATETIME,
+	UPDATEVOLUME,
+	UPDATECOLOR,
+	UPDATEDOTCOLOR
+} WIFISTATE;
+
+int receivedScreenColor[3];
+int receivedScreenDotColor[3];
+
+WIFISTATE wifiState = READY;
+
+class CaptiveRequestHandler : public AsyncWebHandler
+{
+public:
+	bool canHandle(__unused AsyncWebServerRequest *request) const override
+	{
+		return true;
+	}
+
+	void handleRequest(AsyncWebServerRequest *request)
+	{
+		Serial.println("Connection detected");
+		Serial.println(request->url());
+		if (request->method() == HTTP_GET && request->url() == "/")
+		{
+			request->send(200, "text/html", index_html);
+		} else if (request->method() == HTTP_GET && request->url() == "/hotspot-detect.html") {
+			request->send(200, "text/html", index_html);
+		} else if (request->method() == HTTP_GET && request->url() == "/changeTime") {
+				String inputSeconds;
+				String inputMinutes;
+				String inputHours;
+  		  if (request->hasParam("seconds") && request->hasParam("minutes") && request->hasParam("hours")) {
+  		    inputSeconds = request->getParam("seconds")->value();
+					inputMinutes = request->getParam("minutes")->value();
+					inputHours = request->getParam("hours")->value();
+					wifiState = UPDATETIME;
+					manualTimeSetup(inputHours.toInt(), inputMinutes.toInt(), inputSeconds.toInt());
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateScreenBrightness") {
+				String inputBrightness;
+  		  if (request->hasParam("value")) {
+  		    inputBrightness = request->getParam("value")->value();
+					display.setBrightness(inputBrightness.toInt());
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateRingBrightness") {
+				String inputBrightness;
+  		  if (request->hasParam("value")) {
+  		    inputBrightness = request->getParam("value")->value();
+					//display.setBrightness(inputBrightness.toInt())
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateNumberColor") {
+				String inputR;
+				String inputG;
+				String inputB;
+  		  if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b")) {
+  		    inputR = request->getParam("r")->value();
+					inputG = request->getParam("g")->value();
+					inputB = request->getParam("b")->value();
+					display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else if (request->method() == HTTP_GET && request->url() == "/updateDotColor") {
+				String inputR;
+				String inputG;
+				String inputB;
+  		  if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b")) {
+  		    inputR = request->getParam("r")->value();
+					inputG = request->getParam("g")->value();
+					inputB = request->getParam("b")->value();
+					display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+  		  }
+  		  request->send(200, "text/plain", "OK");
+		} else
+		{
+			request->send(418, "text/html", "<h1>don't get your hopes up, i'm just an alarm clock</h1>");
+		}
+	}
+};
+
+DNSServer dnsServer;
+AsyncWebServer server(80);
+
+void wifiSetup()
+{
+	Serial.println();
+
+	if (!WiFi.softAP("Miss Minutes"))
+	{
+		Serial.println("Soft AP creation failed.");
+		while (1);
+	}
+
+	dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+  dnsServer.setTTL(300);
+	dnsServer.start(53, "*", WiFi.softAPIP());
+	server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
+	server.begin();
+}
+
+void wifiLoop()
+{
+	dnsServer.processNextRequest();
+}
 
 void updateWifi() {
 	if (wifiState == UPDATETIME) {

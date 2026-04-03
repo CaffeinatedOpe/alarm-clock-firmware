@@ -1,12 +1,15 @@
+#include <vector>
+#include <iostream>
+#include <stdio.h>
 class Buttons{
 	public:
-		typedef enum{
-			LEFT,
-			RIGHT,
-			BOTH,
-			NONE
-		} BUTTONSTATE;
-		typedef enum{
+	typedef enum{
+		LEFT,
+		RIGHT,
+		BOTH,
+		NONE
+	} BUTTONSTATE;
+	typedef enum{
 			LEFT_PRESS,
 			RIGHT_PRESS,
 			LEFT_RELEASE,
