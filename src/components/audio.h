@@ -1,34 +1,73 @@
+#include <SPI.h>
+#include <SD.h>
 #include "AudioTools.h"
 #include "AudioTools/AudioLibs/AudioBoardStream.h"
-#include "AudioTools/Disk/AudioSourceSD.h" // or AudioSourceIdxSD.h
 #include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 
-const char *startFilePath="/";
-const char* ext="mp3";
-AudioSourceSD source(startFilePath, ext, PIN_AUDIO_KIT_SD_CARD_CS);
-AudioBoardStream kit(AudioKitEs8388V1);
-MP3DecoderHelix decoder;  // or change to MP3DecoderMAD
-AudioPlayer player(source, kit, decoder);
+
+const int chipSelect=PIN_AUDIO_KIT_SD_CARD_CS;
+AudioBoardStream i2s(AudioKitEs8388V1); // final output of decoded stream
+EncodedAudioStream decoder(&i2s, new MP3DecoderHelix()); // Decoding stream
+StreamCopy copier; 
+File audioFile;
+
 
 typedef enum{
 	PLAYING,
 	SILENT
-} state;
+} AUDIOSTATUS;
+
+AUDIOSTATUS audioStatus = SILENT;
 
 void audioSetup() {
-  auto cfg = kit.defaultConfig(TX_MODE);
-  // sd_active is setting up SPI with the right SD pins by calling 
-  // SPI.begin(PIN_AUDIO_KIT_SD_CARD_CLK, PIN_AUDIO_KIT_SD_CARD_MISO, PIN_AUDIO_KIT_SD_CARD_MOSI, PIN_AUDIO_KIT_SD_CARD_CS);
-  cfg.sd_active = true;
-  kit.begin(cfg);
+  auto config = i2s.defaultConfig(TX_MODE);
+  config.sd_active = true;
+  i2s.begin(config);
 
-  // setup player
-  player.setVolume(0.7);
-  player.begin();
-	kit.addDefaultActions();
+  // setup file
+  SD.begin(chipSelect);
+  audioFile = SD.open("/sounds/alarm.mp3");
+
+  // setup I2S based on sampling rate provided by decoder
+  decoder.begin();
+	i2s.setVolume(0.5);
+
+  // begin copy
+  copier.begin(decoder, audioFile);
 }
 
 void audioPeriodic() {
-  player.copy();
-	kit.processActions();
+  if (!copier.copy()) {
+    stop();
+  }
+}
+
+void playAudioLoop() {
+	if (!copier.copy()) {
+		audioFile = SD.open("/sounds/alarm.mp3");
+    copier.begin(decoder, audioFile);
+		Serial.println("looping");
+  }
+}
+
+void startAudio() {
+	Serial.println("starting playback");
+	audioStatus = PLAYING;
+	audioFile = SD.open("/sounds/alarm.mp3");
+	copier.begin(decoder, audioFile);
+}
+
+void stopAudio() {
+	Serial.println("stopped playback");
+	copier.end();
+	audioStatus = SILENT;
+}
+
+void toggleAudioState() {
+	if (audioStatus == SILENT) {
+		startAudio();
+	}
+	else {
+		stopAudio();
+	}
 }

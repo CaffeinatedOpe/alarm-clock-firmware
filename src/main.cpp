@@ -26,6 +26,8 @@ void updateWifi() {
 	}
 }
 
+vector<void(*)()> loopFunctions = {};
+
 void processButtons()
 {
 	getButtonEvents();
@@ -34,30 +36,36 @@ void processButtons()
 		switch (i)
 		{
 		case LEFT_PRESS:
-			player.setActive(true);
-			buttonEvents.erase(buttonEvents.begin());
 			Serial.println("left press");
+			if (audioStatus==SILENT){
+				startAudio();
+				loopFunctions.push_back(playAudioLoop);
+			}
+			buttonEvents.erase(buttonEvents.begin());
 			break;
 		case RIGHT_PRESS:
-			player.next();
-			Serial.println(player.audioInfo());
-			buttonEvents.erase(buttonEvents.begin());
 			Serial.println("right press");
+			toggleAudioState();
+			if (audioStatus==SILENT){ //this will be post-state swap
+				loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
+			} else {
+				loopFunctions.push_back(playAudioLoop);
+			}
+			buttonEvents.erase(buttonEvents.begin());
 			break;
 		case LEFT_RELEASE:
-			buttonEvents.erase(buttonEvents.begin());
 			Serial.println("left release");
+			buttonEvents.erase(buttonEvents.begin());
 			break;
 		case RIGHT_RELEASE:
-			buttonEvents.erase(buttonEvents.begin());
 			Serial.println("right release");
+			buttonEvents.erase(buttonEvents.begin());
 			break;
 		}
 	}
 }
 
 //put things in here that only need to run every loop *sometimes*
-vector<void(*)()> loopFunctions = {audioPeriodic, processButtons, updateWifi};
 
 void setup()
 {
@@ -70,8 +78,9 @@ void setup()
 	// ledsetup();
 	initScreen();
 	button_init();
+	loopFunctions.push_back(processButtons); 
+	loopFunctions.push_back(updateWifi);
 	// writeString("testing");
-	player.setActive(false);
 }
 
 void loop()
