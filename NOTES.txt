@@ -1,2 +1,12 @@
 Fonts: https://github.com/idispatch/raster-fonts
-huge font is a bad idea, don't do it unless you think it'd be funny
+huge font is a bad idea, don't do it for text unless you think it'd be funny
+
+apis:
+format for requests is /endpoint?key=val&key=val
+keys and vals must match up, but can be in any order
+/updateScreenBrightness - only parameter is "value", ranges from 0 to 255
+/updateRingBrightness - the same, once it's implemented
+/updateNumberColor - 3 parameters, "r", "g", and "b", each ranging from 0 to 255
+/updateDotColor - the same for the separator dots
+/addAlarm - 2 parameterss: "hours" and "minutes", hours ranging from 0 to 24 (military time), and minutes from 0 to 60
+/deleteAlarm - only parameter is the index in the list of alarms that needs deleted
