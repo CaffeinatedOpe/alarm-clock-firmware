@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//don't ask
+// don't ask
 Buttons buttons = Buttons();
 Display display = Display();
 
@@ -34,7 +34,8 @@ int receivedSeconds;
 int receivedMinutes;
 int receivedHours;
 
-typedef enum{
+typedef enum
+{
 	READY,
 	UPDATETIME,
 	UPDATEVOLUME,
@@ -62,57 +63,80 @@ public:
 		if (request->method() == HTTP_GET && request->url() == "/")
 		{
 			request->send(200, "text/html", index_html);
-		} else if (request->method() == HTTP_GET && request->url() == "/hotspot-detect.html") {
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/hotspot-detect.html")
+		{
 			request->send(200, "text/html", index_html);
-		} else if (request->method() == HTTP_GET && request->url() == "/changeTime") {
-				String inputSeconds;
-				String inputMinutes;
-				String inputHours;
-  		  if (request->hasParam("seconds") && request->hasParam("minutes") && request->hasParam("hours")) {
-  		    inputSeconds = request->getParam("seconds")->value();
-					inputMinutes = request->getParam("minutes")->value();
-					inputHours = request->getParam("hours")->value();
-					wifiState = UPDATETIME;
-					manualTimeSetup(inputHours.toInt(), inputMinutes.toInt(), inputSeconds.toInt());
-  		  }
-  		  request->send(200, "text/plain", "OK");
-		} else if (request->method() == HTTP_GET && request->url() == "/updateScreenBrightness") {
-				String inputBrightness;
-  		  if (request->hasParam("value")) {
-  		    inputBrightness = request->getParam("value")->value();
-					display.setBrightness(inputBrightness.toInt());
-  		  }
-  		  request->send(200, "text/plain", "OK");
-		} else if (request->method() == HTTP_GET && request->url() == "/updateRingBrightness") {
-				String inputBrightness;
-  		  if (request->hasParam("value")) {
-  		    inputBrightness = request->getParam("value")->value();
-					//display.setBrightness(inputBrightness.toInt())
-  		  }
-  		  request->send(200, "text/plain", "OK");
-		} else if (request->method() == HTTP_GET && request->url() == "/updateNumberColor") {
-				String inputR;
-				String inputG;
-				String inputB;
-  		  if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b")) {
-  		    inputR = request->getParam("r")->value();
-					inputG = request->getParam("g")->value();
-					inputB = request->getParam("b")->value();
-					display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
-  		  }
-  		  request->send(200, "text/plain", "OK");
-		} else if (request->method() == HTTP_GET && request->url() == "/updateDotColor") {
-				String inputR;
-				String inputG;
-				String inputB;
-  		  if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b")) {
-  		    inputR = request->getParam("r")->value();
-					inputG = request->getParam("g")->value();
-					inputB = request->getParam("b")->value();
-					display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
-  		  }
-  		  request->send(200, "text/plain", "OK");
-		} else
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/changeTime")
+		{
+			String inputSeconds;
+			String inputMinutes;
+			String inputHours;
+			if (request->hasParam("seconds") && request->hasParam("minutes") && request->hasParam("hours"))
+			{
+				inputSeconds = request->getParam("seconds")->value();
+				inputMinutes = request->getParam("minutes")->value();
+				inputHours = request->getParam("hours")->value();
+				wifiState = UPDATETIME;
+				Serial.println(inputSeconds.toInt());
+				Serial.println(inputMinutes.toInt());
+				Serial.println(inputHours.toInt());
+				manualTimeSetup(inputHours.toInt(), inputMinutes.toInt(), inputSeconds.toInt());
+				Serial.println(getMinutes());
+				Serial.println(getHours());
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/updateScreenBrightness")
+		{
+			String inputBrightness;
+			if (request->hasParam("value"))
+			{
+				inputBrightness = request->getParam("value")->value();
+				display.setBrightness(inputBrightness.toInt());
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/updateRingBrightness")
+		{
+			String inputBrightness;
+			if (request->hasParam("value"))
+			{
+				inputBrightness = request->getParam("value")->value();
+				// display.setBrightness(inputBrightness.toInt())
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/updateNumberColor")
+		{
+			String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/updateDotColor")
+		{
+			String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else
 		{
 			request->send(418, "text/html", "<h1>don't get your hopes up, i'm just an alarm clock</h1>");
 		}
@@ -129,29 +153,26 @@ void wifiSetup()
 	if (!WiFi.softAP("Miss Minutes"))
 	{
 		Serial.println("Soft AP creation failed.");
-		while (1);
+		while (1)
+			;
 	}
 
 	dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-  dnsServer.setTTL(300);
 	dnsServer.start(53, "*", WiFi.softAPIP());
 	server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
 	server.begin();
 }
 
-void wifiLoop()
+void updateWifi()
 {
-	dnsServer.processNextRequest();
-}
-
-void updateWifi() {
-	if (wifiState == UPDATETIME) {
+	if (wifiState == UPDATETIME)
+	{
 		manualTimeSetup(receivedHours, receivedMinutes, receivedSeconds);
 		wifiState = READY;
 	}
 }
 
-vector<void(*)()> loopFunctions = {};
+vector<void (*)()> loopFunctions = {};
 
 void processButtons()
 {
@@ -162,7 +183,8 @@ void processButtons()
 		{
 		case Buttons::LEFT_PRESS:
 			Serial.println("left press");
-			if (audioStatus==SILENT){
+			if (audioStatus == SILENT)
+			{
 				startAudio();
 				loopFunctions.push_back(playAudioLoop);
 			}
@@ -171,9 +193,12 @@ void processButtons()
 		case Buttons::RIGHT_PRESS:
 			Serial.println("right press");
 			toggleAudioState();
-			if (audioStatus==SILENT){ //this will be post-state swap
+			if (audioStatus == SILENT)
+			{ // this will be post-state swap
 				loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
-			} else {
+			}
+			else
+			{
 				loopFunctions.push_back(playAudioLoop);
 			}
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
@@ -190,7 +215,23 @@ void processButtons()
 	}
 }
 
-//put things in here that only need to run every loop *sometimes*
+unsigned long displayTimeMillis; // used to lower the frequency of screen updates
+int oldminutes;
+void updateTime()
+{
+	unsigned long currentmillis = millis();
+	if (currentmillis - displayTimeMillis >= 1000) // updates every second, can be easily adjusted.
+	{ 
+		if (oldminutes != getMinutes())
+		{
+			display.writeTime(getMinutes(), getHours());
+			oldminutes = getMinutes();
+		}
+		displayTimeMillis = currentmillis;
+	}
+}
+
+// put things in here that only need to run every loop *sometimes*
 
 void setup()
 {
@@ -203,19 +244,19 @@ void setup()
 	// ledsetup();
 	buttons.init();
 	display.init();
-	loopFunctions.push_back(processButtons); 
-	loopFunctions.push_back(updateWifi);
+	loopFunctions.push_back(processButtons);
+	loopFunctions.push_back(updateTime);
 	// writeString("testing");
 }
 
 void loop()
 {
-	wifiLoop();
 	// manualTimeLoop();
-	display.writeTime(getMinutes(), getHours());
-	for (int i = 0; i < loopFunctions.size(); i++) {	
+	for (int i = 0; i < loopFunctions.size(); i++)
+	{
 		loopFunctions[i]();
 	}
+	dnsServer.processNextRequest();
 	/*switch(getManualAlarmTimeCompare("07:30:30")){
 		 case IS_TIME:
 				Serial.println("Time is Time");
