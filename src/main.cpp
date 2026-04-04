@@ -28,6 +28,147 @@ typedef enum
 } Status;
 Status alarmStatus = IDLE;
 
+// put things in here that only need to run every loop *sometimes*
+// remove when not needed, add when needed. keeps loops optimized.
+vector<void (*)()> loopFunctions = {};
+
+unsigned long displayTimeMillis; // used to lower the frequency of screen updates
+int oldminutes;
+void updateTimeDisplay()
+{
+	unsigned long currentmillis = millis();
+	int diff = currentmillis - displayTimeMillis;
+	if (abs(diff) >= 1000) // updates every second, can be easily adjusted.
+	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
+	{
+		if (oldminutes != getMinutes())
+		{
+			display.writeTime(getMinutes(), getHours());
+			oldminutes = getMinutes();
+		}
+		displayTimeMillis = currentmillis;
+	}
+}
+
+struct Time
+{
+	int minutes;
+	int hours;
+	Time(int h, int m)
+	{
+		hours = h;
+		minutes = m;
+	}
+};
+
+vector<Time> alarms = {};
+
+// this alarm will NEVER TRIGGER with these values
+// cause, y'know, time
+Time nextAlarm(25, 61);
+
+int currentAlarmIndex = -1;
+
+// relies on the list of alarms being sorted, which is done as entries are added
+void getNextAlarm()
+{
+	currentAlarmIndex++;
+	if (currentAlarmIndex >= alarms.size())
+	{
+		currentAlarmIndex = 0;
+	}
+	nextAlarm = alarms[currentAlarmIndex];
+}
+
+void getCurrentAlarmIndex()
+{ // this correctly sets the next alarm, not just the index. Alarm entries must be sorted for this to work.
+	Time currentTime = Time(getHours(), getMinutes());
+	for (int i = 0; i < alarms.size(); i++)
+	{
+		if (alarms[i].hours > currentTime.hours)
+		{
+			currentAlarmIndex = i;
+			nextAlarm = alarms[i];
+			break;
+		}
+		else if (alarms[i].hours == currentTime.hours && alarms[i].minutes > currentTime.minutes)
+		{
+			currentAlarmIndex = i;
+			nextAlarm = alarms[i];
+			break;
+		}
+	}
+}
+
+void insertAlarm(int h, int m)
+{
+	if (alarms.size() != 0)
+	{
+		bool addToEnd = true;
+		for (int i = 0; i < alarms.size(); i++)
+		{
+			if (h < alarms[i].hours)
+			{
+				alarms.insert(alarms.begin() + i, Time(h, m));
+				addToEnd = false;
+				break;
+			}
+			else if (h == alarms[i].hours && m < alarms[i].minutes)
+			{
+				alarms.insert(alarms.begin() + i, Time(h, m));
+				addToEnd = false;
+				break;
+			}
+		}
+		if (addToEnd) {
+			alarms.push_back(Time(h, m));
+		}
+	}
+	else
+	{
+		alarms.push_back(Time(h, m));
+	}
+	getCurrentAlarmIndex();
+}
+
+unsigned long alarmTimeMillis; // used to lower the frequency of screen updates
+void alarmLoop()
+{
+	unsigned long currentmillis = millis();
+	int diff = currentmillis - alarmTimeMillis;
+	if (abs(diff) >= 1000) // updates every second, can be easily adjusted.
+	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
+	{
+		if (nextAlarm.hours == getHours())
+		{
+			if (nextAlarm.minutes == getMinutes())
+			{
+				Serial.println("Sounding Alarm");
+				startAudio();
+				loopFunctions.push_back(playAudioLoop);
+				alarmStatus = SOUNDING_ALARM;
+				getNextAlarm();
+			}
+		}
+		alarmTimeMillis = currentmillis;
+	}
+}
+
+String alarmListProcessor(const String& var) {
+	if (var=="ALARMS"){
+		String alarmsList = "";
+		for (int i = 0; i < alarms.size(); i++){
+			String minutes = String(alarms[i].minutes);
+			if (alarms[i].minutes <= 10){
+				minutes = "0" + minutes;
+			}
+			alarmsList += "<p class='time'>" + String(alarms[i].hours) + ":" + minutes + "</p><button type='button' onclick='deleteAlarm(" + String(i) + ")'>Delete</button>";
+		}
+		return alarmsList;
+	}
+	return String();
+}
+
 class CaptiveRequestHandler : public AsyncWebHandler
 {
 public:
@@ -59,6 +200,7 @@ public:
 				inputMinutes = request->getParam("minutes")->value();
 				inputHours = request->getParam("hours")->value();
 				manualTimeSetup(inputHours.toInt(), inputMinutes.toInt(), inputSeconds.toInt());
+				getCurrentAlarmIndex();
 			}
 			request->send(200, "text/plain", "OK");
 		}
@@ -110,6 +252,33 @@ public:
 			}
 			request->send(200, "text/plain", "OK");
 		}
+		else if (request->method() == HTTP_GET && request->url() == "/alarms")
+		{
+			request->send(200, "text/html", alarms_html, alarmListProcessor);
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/addAlarm")
+		{
+			String inputHours;
+			String inputMinutes;
+			if (request->hasParam("hours"), request->hasParam("minutes"))
+			{
+				inputHours = request->getParam("hours")->value();
+				inputMinutes = request->getParam("minutes")->value();
+				insertAlarm(inputHours.toInt(), inputMinutes.toInt());
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/deleteAlarm")
+		{
+			String index;
+			if (request->hasParam("index"))
+			{
+				index = request->getParam("index")->value();
+				alarms.erase(alarms.begin() + index.toInt());
+			}
+			getCurrentAlarmIndex();
+			request->send(200, "text/plain", "OK");
+		}
 		else
 		{
 			request->send(418, "text/html", "<h1>don't get your hopes up, i'm just an alarm clock</h1>");
@@ -127,8 +296,7 @@ void wifiSetup()
 	if (!WiFi.softAP("Miss Minutes"))
 	{
 		Serial.println("Soft AP creation failed.");
-		while (1)
-			;
+		while (1);
 	}
 
 	dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
@@ -136,10 +304,6 @@ void wifiSetup()
 	server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
 	server.begin();
 }
-
-// put things in here that only need to run every loop *sometimes*
-// remove when not needed, add when needed. keeps loops optimized.
-vector<void (*)()> loopFunctions = {};
 
 void processButtons()
 {
@@ -183,85 +347,6 @@ void processButtons()
 	}
 }
 
-unsigned long displayTimeMillis; // used to lower the frequency of screen updates
-int oldminutes;
-void updateTimeDisplay()
-{
-	unsigned long currentmillis = millis();
-	int diff = currentmillis - displayTimeMillis;
-	if (abs(diff) >= 1000) // updates every second, can be easily adjusted.
-	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
-	{
-		if (oldminutes != getMinutes())
-		{
-			display.writeTime(getMinutes(), getHours());
-			oldminutes = getMinutes();
-		}
-		displayTimeMillis = currentmillis;
-	}
-}
-
-struct Time
-{
-	int minutes;
-	int hours;
-	Time(int h, int m) {hours = h; minutes = m;}
-};
-
-vector<Time> alarms = {};
-
-// this alarm will NEVER TRIGGER with these values
-// cause, y'know, time
-Time nextAlarm(25, 61);
-
-int currentAlarmIndex = -1;
-
-// relies on the list of alarms being sorted, which should be done on boot (if alarms are saved) and each time an alarm is added
-// TODO: sorting algo is currently not implemented, needs implemented
-void getNextAlarm()
-{
-	currentAlarmIndex++;
-	if (currentAlarmIndex >= alarms.size())
-	{
-		currentAlarmIndex = 0;
-	}
-	nextAlarm = alarms[currentAlarmIndex];
-}
-
-void getCurrentAlarmIndex() { //this correctly sets the next alarm, not just the index
-	Time currentTime = Time(getHours(), getMinutes());
-	for (int i = 0; i < alarms.size(); i++) {
-		if (alarms[i].hours > currentTime.hours){
-			currentAlarmIndex = i;
-			nextAlarm = alarms[i];
-			break;
-		}
-	}
-}
-
-unsigned long alarmTimeMillis; // used to lower the frequency of screen updates
-void alarmLoop()
-{
-	unsigned long currentmillis = millis();
-	int diff = currentmillis - alarmTimeMillis;
-	if (abs(diff) >= 1000) // updates every second, can be easily adjusted.
-	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
-	{
-		if (nextAlarm.hours == getHours())
-		{
-			if (nextAlarm.minutes == getMinutes())
-			{
-				Serial.println("Sounding Alarm");
-				startAudio();
-				loopFunctions.push_back(playAudioLoop);
-				alarmStatus = SOUNDING_ALARM;
-				getNextAlarm();
-			}
-		}
-		alarmTimeMillis = currentmillis;
-	}
-}
-
 void setup()
 {
 	Serial.begin(115200);
@@ -275,10 +360,9 @@ void setup()
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);
 
-	alarms.push_back(Time(7,31));
-	alarms.push_back(Time(7,35));
-	alarms.push_back(Time(8,0));
-	getCurrentAlarmIndex(); //this correctly sets the next alarm
+	insertAlarm(7, 31);
+	insertAlarm(8, 0);
+	insertAlarm(7, 35);
 }
 
 void loop()

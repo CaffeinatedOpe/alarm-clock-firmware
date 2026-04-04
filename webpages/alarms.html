@@ -1,0 +1,25 @@
+<script>
+	function deleteAlarm(index) {
+		var now = new Date();
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/deleteAlarm?index=" + index, true);
+		xhr.send();
+		location.reload();
+	}
+</script>
+<body>
+	<div class="centered">
+		<h1>Current Alarms</h1>
+		%ALARMS%
+
+		//Testing entry for css, REMOVE BEFORE DEPLOYING
+		<p class='time'>7:31</p><button type='button' onclick='deleteAlarm(0)'>Delete</button>
+		//End test entry
+
+	</div>
+</body>
+<style>
+	.centered {
+		text-align:center
+	}
+</style>
