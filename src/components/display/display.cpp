@@ -186,12 +186,30 @@ void Display::writeString(String text)
 	refreshDisplay();
 }
 
-void Display::writeTime(int min, int hour)
+void Display::writeTime(int min, int hour, bool militaryTime)
 {
+	
 	clearBuffer();
-	char text[4];
+	char hourstext[2];
+	char minutestext[2];
 	int index = 0;
-	sprintf(text, "%d", hour * 100 + min);
+	if (militaryTime) {
+		sprintf(hourstext, "%02d", hour);
+	} else{
+		if (hour > 12){
+			hour -= 12;
+		}
+		if (hour == 0) {
+			hour = 12;
+		}
+		if (hour > 9){
+			sprintf(hourstext, "%02d", hour);
+		}
+		else {
+			sprintf(hourstext, " %d", hour);
+		}
+	}
+	sprintf(minutestext, "%02d", min);
 	int width = 8;
 	int gap = 0;
 	int height = 8;
@@ -213,19 +231,18 @@ void Display::writeTime(int min, int hour)
 		font = SIXBYEIGHT;
 		break;
 	}
-	if (hour < 10)
+	Serial.println(hour);
+	/*if (hour < 10)
 	{
-		writeChar((int)text[0], index + width - gap);
-		writeChar((int)text[1], index + gap + (2 * width));
-		writeChar((int)text[2], index + gap + (3 * width));
+		writeChar((int)hourstext[0], index + width - gap);
 	}
 	else
-	{
-		writeChar((int)text[0], index - gap);
-		writeChar((int)text[1], index - gap + width);
-		writeChar((int)text[2], index + gap + (2 * width));
-		writeChar((int)text[3], index + gap + (3 * width));
-	}
+	{*/
+		writeChar((int)hourstext[0], index - gap);
+		writeChar((int)hourstext[1], index - gap + width);
+	//}
+	writeChar((int)minutestext[0], index + gap + (2 * width));
+	writeChar((int)minutestext[1], index + gap + (3 * width));
 	addTimeSeparator(height);
 	refreshDisplay();
 }

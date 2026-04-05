@@ -21,6 +21,8 @@ using namespace std;
 Buttons buttons = Buttons();
 Display display = Display();
 
+bool militaryTime = false;
+
 typedef enum
 {
 	SOUNDING_ALARM,
@@ -43,7 +45,7 @@ void updateTimeDisplay()
 	{
 		if (oldminutes != getMinutes())
 		{
-			display.writeTime(getMinutes(), getHours());
+			display.writeTime(getMinutes(), getHours(), militaryTime);
 			oldminutes = getMinutes();
 		}
 		displayTimeMillis = currentmillis;
@@ -259,6 +261,7 @@ public:
 				inputG = request->getParam("g")->value();
 				inputB = request->getParam("b")->value();
 				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				display.writeTime(getMinutes(), getHours(), militaryTime);
 			}
 			request->send(200, "text/plain", "OK");
 		}
@@ -273,6 +276,7 @@ public:
 				inputG = request->getParam("g")->value();
 				inputB = request->getParam("b")->value();
 				display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				display.writeTime(getMinutes(), getHours(), militaryTime);
 			}
 			request->send(200, "text/plain", "OK");
 		}

@@ -9,7 +9,7 @@ public:
 	void refreshDisplay();
 
 	void writeChar(int, int);
-	void writeTime(int, int);
+	void writeTime(int, int, bool);
 	void writeString(String);
 
 	void setColor(int, int, int);
