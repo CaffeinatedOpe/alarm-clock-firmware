@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "components/timeTelling.h"
 #include "components/buttons/buttons.h"
+#include "components/rings/rings.h"
 // #include "ledRings.h"
 #include "components/display/display.h"
 
@@ -20,6 +21,7 @@ using namespace std;
 // don't ask
 Buttons buttons = Buttons();
 Display display = Display();
+Rings rings = Rings();
 
 bool militaryTime = false;
 
@@ -384,6 +386,9 @@ void setup()
 
 	buttons.init();
 	display.init();
+	rings.init();
+	rings.blank();
+	rings.test();
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);

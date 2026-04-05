@@ -231,7 +231,6 @@ void Display::writeTime(int min, int hour, bool militaryTime)
 		font = SIXBYEIGHT;
 		break;
 	}
-	Serial.println(hour);
 	/*if (hour < 10)
 	{
 		writeChar((int)hourstext[0], index + width - gap);
