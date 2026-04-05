@@ -120,7 +120,8 @@ void insertAlarm(int h, int m)
 				break;
 			}
 		}
-		if (addToEnd) {
+		if (addToEnd)
+		{
 			alarms.push_back(Time(h, m));
 		}
 	}
@@ -129,6 +130,24 @@ void insertAlarm(int h, int m)
 		alarms.push_back(Time(h, m));
 	}
 	getCurrentAlarmIndex();
+}
+
+unsigned long loopPreventionMillis; // used to lower the frequency of updates
+//prevents the same alarm from firing a bunch of times in a minute, and getting started after being stopped
+void loopPrevention()
+{
+	unsigned long currentmillis = millis();
+	int diff = currentmillis - loopPreventionMillis;
+	if (abs(diff) >= 5000)
+	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
+	{
+		if (getMinutes() != nextAlarm.minutes)
+		{
+			alarmStatus = IDLE;
+			loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), loopPrevention));
+		}
+		loopPreventionMillis = currentmillis;
+	}
 }
 
 unsigned long alarmTimeMillis; // used to lower the frequency of screen updates
@@ -141,11 +160,12 @@ void alarmLoop()
 	{
 		if (nextAlarm.hours == getHours())
 		{
-			if (nextAlarm.minutes == getMinutes())
+			if (nextAlarm.minutes == getMinutes() && alarmStatus == IDLE)
 			{
 				Serial.println("Sounding Alarm");
 				startAudio();
 				loopFunctions.push_back(playAudioLoop);
+				loopFunctions.push_back(loopPrevention);
 				alarmStatus = SOUNDING_ALARM;
 				getNextAlarm();
 			}
@@ -154,15 +174,19 @@ void alarmLoop()
 	}
 }
 
-String alarmListProcessor(const String& var) {
-	if (var=="ALARMS"){
+String alarmListProcessor(const String &var)
+{
+	if (var == "ALARMS")
+	{
 		String alarmsList = "";
-		for (int i = 0; i < alarms.size(); i++){
+		for (int i = 0; i < alarms.size(); i++)
+		{
 			String minutes = String(alarms[i].minutes);
-			if (alarms[i].minutes <= 10){
+			if (alarms[i].minutes <= 10)
+			{
 				minutes = "0" + minutes;
 			}
-			alarmsList += "<p class='time'>" + String(alarms[i].hours) + ":" + minutes + "</p><button type='button' onclick='deleteAlarm(" + String(i) + ")'>Delete</button>";
+			alarmsList += "<div><p class='time'>" + String(alarms[i].hours) + ":" + minutes + "</p><button type='button' onclick='deleteAlarm(" + String(i) + ")'>Delete</button></div>";
 		}
 		return alarmsList;
 	}
@@ -296,7 +320,8 @@ void wifiSetup()
 	if (!WiFi.softAP("Miss Minutes"))
 	{
 		Serial.println("Soft AP creation failed.");
-		while (1);
+		while (1)
+			;
 	}
 
 	dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
@@ -323,7 +348,6 @@ void processButtons()
 			break;
 		case Buttons::RIGHT_PRESS:
 			Serial.println("right press");
-			alarmStatus = IDLE;
 			toggleAudioState();
 			if (audioStatus == SILENT)
 			{ // this will be post-state swap
@@ -361,8 +385,6 @@ void setup()
 	loopFunctions.push_back(alarmLoop);
 
 	insertAlarm(7, 31);
-	insertAlarm(8, 0);
-	insertAlarm(7, 35);
 }
 
 void loop()

@@ -5,9 +5,16 @@
 		xhr.open("GET", "/changeTime?seconds=" + now.getSeconds() + "&minutes=" + now.getMinutes() + "&hours=" + now.getHours(), true);
 		xhr.send();
 	}
+
+	function addAlarm() {	
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/addAlarm?hours=" + document.getElementById('hours').value + "&minutes=" + document.getElementById('minutes').value, true);
+		xhr.send();
+	}
+
 	updateTime()
 </script>
 
 <body>
-
+	hour:<input type="number" id="hours" name="hours" min="0" max="24">minute:<input type="number" id="minutes" name="minutes" min="0" max="60"><button type='button' onclick='addAlarm()'> Add Alarm</button>
 </body>

@@ -2,7 +2,7 @@
 	function deleteAlarm(index) {
 		var now = new Date();
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/deleteAlarm?index=" + index, true);
+		xhr.open("GET", "/deleteAlarm?index=" + index, false);
 		xhr.send();
 		location.reload();
 	}
