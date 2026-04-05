@@ -3,7 +3,8 @@
 class Rings
 {
 public:
-	void init();
+	void initL();
+	void initR();
 	void blank();
 	void clearBuffer();
 	void refreshDisplay();
@@ -13,6 +14,6 @@ public:
 	void test();
 
 private:
-	CRGB ringLedsL[12];
+	CRGB leds[12];
 	CRGB color;
 };

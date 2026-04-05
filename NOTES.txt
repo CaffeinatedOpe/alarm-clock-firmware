@@ -10,3 +10,5 @@ keys and vals must match up, but can be in any order
 /updateDotColor - the same for the separator dots
 /addAlarm - 2 parameterss: "hours" and "minutes", hours ranging from 0 to 24 (military time), and minutes from 0 to 60
 /deleteAlarm - only parameter is the index in the list of alarms that needs deleted
+
+FIX WIRING DIAGRAM! pins have been moved around to suit functionality

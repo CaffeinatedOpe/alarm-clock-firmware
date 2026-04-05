@@ -21,7 +21,8 @@ using namespace std;
 // don't ask
 Buttons buttons = Buttons();
 Display display = Display();
-Rings rings = Rings();
+Rings ringR = Rings();
+Rings ringL = Rings();
 
 bool militaryTime = false;
 
@@ -386,9 +387,12 @@ void setup()
 
 	buttons.init();
 	display.init();
-	rings.init();
-	rings.blank();
-	rings.test();
+	ringL.initL();
+	ringR.initR();
+	ringL.blank();
+	ringR.blank();
+	ringL.test();
+	ringR.test();
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);

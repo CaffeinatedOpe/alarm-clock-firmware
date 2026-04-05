@@ -1,17 +1,30 @@
 #include "rings.h"
 #include <FastLED.h>
 
-#define SCREEN_DATA_PIN 23
+#define PIN_L 5
+#define PIN_R 23
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
 #define RING_NUM_LEDS 12
 #define BRIGHTNESS 75
 
-void Rings::init(){
+void Rings::initL(){
 	delay(20); // 1 second delay for recovery
 
 	// tell FastLED about the LED strip configuration
-	FastLED.addLeds<LED_TYPE, SCREEN_DATA_PIN, COLOR_ORDER>(ringLedsL, RING_NUM_LEDS)
+	FastLED.addLeds<LED_TYPE, PIN_L, COLOR_ORDER>(leds, RING_NUM_LEDS)
+			.setCorrection(TypicalLEDStrip)
+			.setDither(BRIGHTNESS < 255);
+
+	// set master brightness control
+	FastLED.setBrightness(BRIGHTNESS);
+	color = CRGB(0, 255, 255);
+}
+void Rings::initR(){
+	delay(20); // 1 second delay for recovery
+
+	// tell FastLED about the LED strip configuration
+	FastLED.addLeds<LED_TYPE, PIN_R, COLOR_ORDER>(leds, RING_NUM_LEDS)
 			.setCorrection(TypicalLEDStrip)
 			.setDither(BRIGHTNESS < 255);
 
@@ -25,13 +38,13 @@ void Rings::blank()
 	CRGB off = CRGB(0, 0, 0);
 	for (int i = 0; i < RING_NUM_LEDS; i++)
 	{
-		ringLedsL[i] = off;
+		leds[i] = off;
 	}
 }
 
 void Rings::test() {
 	for (int i = 0; i < RING_NUM_LEDS; i++) {
-		ringLedsL[i] = CRGB(0, 255, 255);
+		leds[i] = CRGB(0, 255, 255);
 		FastLED.show();
 	}
 }

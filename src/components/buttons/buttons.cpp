@@ -5,7 +5,7 @@
 using namespace std;
 
 #define button_l 22
-#define button_r 5
+#define button_r 19
 
 void Buttons::init() {
 	pinMode(button_l, INPUT_PULLUP);
