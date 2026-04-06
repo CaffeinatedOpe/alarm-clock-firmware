@@ -29,7 +29,8 @@ bool militaryTime = false;
 typedef enum
 {
 	SOUNDING_ALARM,
-	IDLE
+	IDLE,
+	SILENCED
 } Status;
 Status alarmStatus = IDLE;
 
@@ -49,9 +50,34 @@ void updateTimeDisplay()
 		if (oldminutes != getMinutes())
 		{
 			display.writeTime(getMinutes(), getHours(), militaryTime);
+			display.refreshDisplay();
 			oldminutes = getMinutes();
 		}
 		displayTimeMillis = currentmillis;
+	}
+}
+
+unsigned long blinktimer = 0;
+bool blinkState = false;
+void ringBlinks()
+{
+	unsigned long currentTime = millis();
+	if ((currentTime - blinktimer) > 250)
+	{
+		blinkState = !blinkState;
+		if (blinkState)
+		{
+			ringL.fillColor();
+			ringR.fillColor();
+		}
+		else
+		{
+			ringL.blank();
+			ringR.blank();
+		}
+		ringL.refresh();
+		ringR.refresh();
+		blinktimer = currentTime;
 	}
 }
 
@@ -138,7 +164,7 @@ void insertAlarm(int h, int m)
 }
 
 unsigned long loopPreventionMillis; // used to lower the frequency of updates
-//prevents the same alarm from firing a bunch of times in a minute, and getting started after being stopped
+// prevents the same alarm from firing a bunch of times in a minute, and getting started after being stopped
 void loopPrevention()
 {
 	unsigned long currentmillis = millis();
@@ -146,10 +172,12 @@ void loopPrevention()
 	if (abs(diff) >= 5000)
 	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
 	{
-		if (getMinutes() != nextAlarm.minutes)
+		if (getMinutes() != nextAlarm.minutes && alarmStatus == SILENCED)
 		{
 			alarmStatus = IDLE;
 			loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), loopPrevention));
+			ringL.blank();
+			ringR.blank();
 		}
 		loopPreventionMillis = currentmillis;
 	}
@@ -169,6 +197,7 @@ void alarmLoop()
 			{
 				Serial.println("Sounding Alarm");
 				startAudio();
+				loopFunctions.push_back(ringBlinks);
 				loopFunctions.push_back(playAudioLoop);
 				loopFunctions.push_back(loopPrevention);
 				alarmStatus = SOUNDING_ALARM;
@@ -240,6 +269,7 @@ public:
 			{
 				inputBrightness = request->getParam("value")->value();
 				display.setBrightness(inputBrightness.toInt());
+				display.refreshDisplay();
 			}
 			request->send(200, "text/plain", "OK");
 		}
@@ -249,7 +279,8 @@ public:
 			if (request->hasParam("value"))
 			{
 				inputBrightness = request->getParam("value")->value();
-				// display.setBrightness(inputBrightness.toInt())
+				ringL.setBrightness(inputBrightness.toInt());
+				ringR.setBrightness(inputBrightness.toInt());
 			}
 			request->send(200, "text/plain", "OK");
 		}
@@ -265,6 +296,7 @@ public:
 				inputB = request->getParam("b")->value();
 				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
 				display.writeTime(getMinutes(), getHours(), militaryTime);
+				display.refreshDisplay();
 			}
 			request->send(200, "text/plain", "OK");
 		}
@@ -280,6 +312,21 @@ public:
 				inputB = request->getParam("b")->value();
 				display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
 				display.writeTime(getMinutes(), getHours(), militaryTime);
+			}
+			request->send(200, "text/plain", "OK");
+		}
+		else if (request->method() == HTTP_GET && request->url() == "/updateRingColor")
+		{
+			String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				ringL.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				ringL.refresh();
 			}
 			request->send(200, "text/plain", "OK");
 		}
@@ -364,6 +411,11 @@ void processButtons()
 			{
 				loopFunctions.push_back(playAudioLoop);
 			}
+			if (alarmStatus == SOUNDING_ALARM)
+			{
+				loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
+				alarmStatus = SILENCED;
+			}
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		case Buttons::LEFT_RELEASE:
@@ -391,8 +443,6 @@ void setup()
 	ringR.initR();
 	ringL.blank();
 	ringR.blank();
-	ringL.test();
-	ringR.test();
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);

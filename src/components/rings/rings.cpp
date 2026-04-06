@@ -49,10 +49,20 @@ void Rings::test() {
 	}
 }
 
+void Rings::fillColor() {
+	for (int i = 0; i < RING_NUM_LEDS;i++) {
+		leds[i]	= color;
+	}
+}
+
 void Rings::setColor(int r, int g, int b) {
 	color = CRGB(r, g, b);
 }
 
 void Rings::setBrightness(int brightness) {
 	FastLED.setBrightness(brightness);
+}
+
+void Rings::refresh() {
+	FastLED.show();
 }
