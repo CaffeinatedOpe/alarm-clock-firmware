@@ -239,128 +239,6 @@ public:
 	{
 		Serial.println("Connection detected");
 		Serial.println(request->url());
-		if (request->method() == HTTP_GET && request->url() == "/")
-		{
-			request->send(200, "text/html", index_html);
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/hotspot-detect.html")
-		{
-			request->send(200, "text/html", index_html);
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/changeTime")
-		{
-			String inputSeconds;
-			String inputMinutes;
-			String inputHours;
-			if (request->hasParam("seconds") && request->hasParam("minutes") && request->hasParam("hours"))
-			{
-				inputSeconds = request->getParam("seconds")->value();
-				inputMinutes = request->getParam("minutes")->value();
-				inputHours = request->getParam("hours")->value();
-				manualTimeSetup(inputHours.toInt(), inputMinutes.toInt(), inputSeconds.toInt());
-				getCurrentAlarmIndex();
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/updateScreenBrightness")
-		{
-			String inputBrightness;
-			if (request->hasParam("value"))
-			{
-				inputBrightness = request->getParam("value")->value();
-				display.setBrightness(inputBrightness.toInt());
-				display.refreshDisplay();
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/updateRingBrightness")
-		{
-			String inputBrightness;
-			if (request->hasParam("value"))
-			{
-				inputBrightness = request->getParam("value")->value();
-				ringL.setBrightness(inputBrightness.toInt());
-				ringR.setBrightness(inputBrightness.toInt());
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/updateNumberColor")
-		{
-			String inputR;
-			String inputG;
-			String inputB;
-			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
-			{
-				inputR = request->getParam("r")->value();
-				inputG = request->getParam("g")->value();
-				inputB = request->getParam("b")->value();
-				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
-				display.writeTime(getMinutes(), getHours(), militaryTime);
-				display.refreshDisplay();
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/updateDotColor")
-		{
-			String inputR;
-			String inputG;
-			String inputB;
-			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
-			{
-				inputR = request->getParam("r")->value();
-				inputG = request->getParam("g")->value();
-				inputB = request->getParam("b")->value();
-				display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
-				display.writeTime(getMinutes(), getHours(), militaryTime);
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/updateRingColor")
-		{
-			String inputR;
-			String inputG;
-			String inputB;
-			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
-			{
-				inputR = request->getParam("r")->value();
-				inputG = request->getParam("g")->value();
-				inputB = request->getParam("b")->value();
-				ringL.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
-				ringL.refresh();
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/alarms")
-		{
-			request->send(200, "text/html", alarms_html, alarmListProcessor);
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/addAlarm")
-		{
-			String inputHours;
-			String inputMinutes;
-			if (request->hasParam("hours"), request->hasParam("minutes"))
-			{
-				inputHours = request->getParam("hours")->value();
-				inputMinutes = request->getParam("minutes")->value();
-				insertAlarm(inputHours.toInt(), inputMinutes.toInt());
-			}
-			request->send(200, "text/plain", "OK");
-		}
-		else if (request->method() == HTTP_GET && request->url() == "/deleteAlarm")
-		{
-			String index;
-			if (request->hasParam("index"))
-			{
-				index = request->getParam("index")->value();
-				alarms.erase(alarms.begin() + index.toInt());
-			}
-			getCurrentAlarmIndex();
-			request->send(200, "text/plain", "OK");
-		}
-		else
-		{
-			request->send(418, "text/html", "<h1>don't get your hopes up, i'm just an alarm clock</h1>");
-		}
 	}
 };
 
@@ -380,7 +258,161 @@ void wifiSetup()
 
 	dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
 	dnsServer.start(53, "*", WiFi.softAPIP());
-	server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
+	server.on(
+			"/", HTTP_GET,
+			[](AsyncWebServerRequest *request)
+			{
+				request->send(200, "text/html", index_html);
+			});
+	server.on(
+			"/hotspot-detect.html", HTTP_GET,
+			[](AsyncWebServerRequest *request)
+			{
+				request->send(200, "text/html", index_html);
+			});
+	server.on("/changeTime", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputSeconds;
+			String inputMinutes;
+			String inputHours;
+			if (request->hasParam("seconds") && request->hasParam("minutes") && request->hasParam("hours"))
+			{
+				inputSeconds = request->getParam("seconds")->value();
+				inputMinutes = request->getParam("minutes")->value();
+				inputHours = request->getParam("hours")->value();
+				manualTimeSetup(inputHours.toInt(), inputMinutes.toInt(), inputSeconds.toInt());
+				getCurrentAlarmIndex();
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateScreenBrightness", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputBrightness;
+			if (request->hasParam("value"))
+			{
+				inputBrightness = request->getParam("value")->value();
+				display.setBrightness(inputBrightness.toInt());
+				display.refreshDisplay();
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateRingBrightness", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputBrightness;
+			if (request->hasParam("value"))
+			{
+				inputBrightness = request->getParam("value")->value();
+				ringL.setBrightness(inputBrightness.toInt());
+				ringR.setBrightness(inputBrightness.toInt());
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateNumberColor", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				display.writeTime(getMinutes(), getHours(), militaryTime);
+				display.refreshDisplay();
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateDotColor", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				display.writeTime(getMinutes(), getHours(), militaryTime);
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateRingColor", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				ringL.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				ringL.refresh();
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/alarms", HTTP_GET, [](AsyncWebServerRequest *request)
+						{ request->send(200, "text/html", alarms_html, alarmListProcessor); });
+	server.on("/addAlarm", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String inputHours;
+			String inputMinutes;
+			if (request->hasParam("hours"), request->hasParam("minutes"))
+			{
+				inputHours = request->getParam("hours")->value();
+				inputMinutes = request->getParam("minutes")->value();
+				insertAlarm(inputHours.toInt(), inputMinutes.toInt());
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/deleteAlarm", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+			String index;
+			if (request->hasParam("index"))
+			{
+				index = request->getParam("index")->value();
+				alarms.erase(alarms.begin() + index.toInt());
+			}
+			getCurrentAlarmIndex();
+			request->send(200, "text/plain", "OK"); });
+	server.on(
+			"/upload/file", HTTP_POST,
+			[](AsyncWebServerRequest *request)
+			{
+				if (request->getResponse())
+				{
+					// 400 File not available for writing
+					Serial.println("error");
+					return;
+				}
+
+				if (!SD.exists("/sounds/alarm.mp3"))
+				{
+					Serial.println("nothing uploaded");
+					return request->send(400, "text/plain", "Nothing uploaded");
+				}
+
+				// sends back the uploaded file
+				request->send(SD, "/sounds/alarm.mp3", "text/plain");
+			},
+			[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+			{
+				Serial.printf("Upload[%s]: start=%u, len=%u, final=%d\n", filename.c_str(), index, len, final);
+
+				if (!index)
+				{
+					request->_tempFile = SD.open("/sounds/alarm.mp3", "w");
+
+					if (!request->_tempFile)
+					{
+						request->send(400, "text/plain", "File not available for writing");
+						return;
+					}
+				}
+				if (len)
+				{
+					request->_tempFile.write(data, len);
+				}
+				if (final)
+				{
+					request->_tempFile.close();
+				}
+			});
 	server.begin();
 }
 
@@ -446,8 +478,6 @@ void setup()
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);
-
-	insertAlarm(7, 31);
 }
 
 void loop()
