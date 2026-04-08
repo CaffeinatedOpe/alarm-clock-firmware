@@ -58,21 +58,30 @@ const char index_html[] PROGMEM = R"rawliteral(
 	updateTime()
 </script>
 
-<body class="centered" style = "background-color: EDE8D0;">
-	<h2 style="font-family: fantasy;">Add alarm:</h2>
-	hour:<input type="number" id="hours" name="hours" min="0" max="24">minute:<input type="number" id="minutes"
+<body class="centered" style="background-color: beige;">
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Add alarm:</h2>
+	Hour:<input type="number" id="hours" name="hours" min="0" max="24">Minute:<input type="number" id="minutes"
 		name="minutes" min="0" max="60"><button type='button' onclick='addAlarm()'> Add Alarm</button>
 	<br />
-	<h2 style="font-family: fantasy;">Change number color:</h2><br/>
-	<input type="color" id="numcolor" value="#ff0000"><button type='button' onclick='updateNumColor()'> Submit</button><br/>
-	<h2 style="font-family: fantasy;">Change separator color:</h2><br/>
-	<input type="color" id="sepcolor" value="#ff0000"><button type='button' onclick='updateSepColor()'> Submit</button><br/>
-	<h2 style="font-family: fantasy;">Change display brightness:</h2>
-	<input type="range" min="1" max="255" value="50" class="slider" id="displayBrightness"><button type='button' onclick='updateDisplayBrightness()'> Submit</button><br/>
-	<h2 style="font-family: fantasy;">Change ring color:</h2><br/>
-	<input type="color" id="ringcolor" value="#ff0000"><button type='button' onclick='updateRingColor()'> Submit</button><br/>
-	<h2 style="font-family: fantasy;">Change ring brightness:</h2>
-	<input type="range" min="1" max="255" value="50" class="slider" id="ringBrightness"><button type='button' onclick='updateRingBrightness()'> Submit</button><br/>
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change number color:</h2><br />
+	<input type="color" id="numcolor" value="#ff0000"><button type='button' onclick='updateNumColor()'>
+		Submit</button><br />
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change separator color:</h2><br />
+	<input type="color" id="sepcolor" value="#ff0000"><button type='button' onclick='updateSepColor()'>
+		Submit</button><br />
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change display brightness:</h2>
+	<input type="range" min="1" max="255" value="50" class="slider" id="displayBrightness"><button type='button'
+		onclick='updateDisplayBrightness()'> Submit</button><br />
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change ring color:</h2><br />
+	<input type="color" id="ringcolor" value="#ff0000"><button type='button' onclick='updateRingColor()'>
+		Submit</button><br />
+	<h2> upload new sound</h2>
+	<form method="post" enctype="multipart/form-data">
+		<label for="file">File</label>
+		<input id="file" name="file" type="file" />
+		<button>Upload</button>
+	</form>
+
 </body>
 <style>
 	.centered {

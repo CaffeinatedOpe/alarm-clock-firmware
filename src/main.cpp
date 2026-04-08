@@ -371,7 +371,7 @@ void wifiSetup()
 			getCurrentAlarmIndex();
 			request->send(200, "text/plain", "OK"); });
 	server.on(
-			"/upload/file", HTTP_POST,
+			"/", HTTP_POST,
 			[](AsyncWebServerRequest *request)
 			{
 				if (request->getResponse())
