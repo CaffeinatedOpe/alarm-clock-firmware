@@ -256,8 +256,6 @@ void wifiSetup()
 			;
 	}
 
-	dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-	dnsServer.start(53, "*", WiFi.softAPIP());
 	server.on(
 			"/", HTTP_GET,
 			[](AsyncWebServerRequest *request)
@@ -272,7 +270,7 @@ void wifiSetup()
 			});
 	server.on("/changeTime", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputSeconds;
+				String inputSeconds;
 			String inputMinutes;
 			String inputHours;
 			if (request->hasParam("seconds") && request->hasParam("minutes") && request->hasParam("hours"))
@@ -286,7 +284,7 @@ void wifiSetup()
 			request->send(200, "text/plain", "OK"); });
 	server.on("/updateScreenBrightness", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputBrightness;
+		String inputBrightness;
 			if (request->hasParam("value"))
 			{
 				inputBrightness = request->getParam("value")->value();
@@ -296,7 +294,7 @@ void wifiSetup()
 			request->send(200, "text/plain", "OK"); });
 	server.on("/updateRingBrightness", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputBrightness;
+				String inputBrightness;
 			if (request->hasParam("value"))
 			{
 				inputBrightness = request->getParam("value")->value();
@@ -306,12 +304,12 @@ void wifiSetup()
 			request->send(200, "text/plain", "OK"); });
 	server.on("/updateNumberColor", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputR;
-			String inputG;
-			String inputB;
-			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
-			{
-				inputR = request->getParam("r")->value();
+				String inputR;
+				String inputG;
+				String inputB;
+				if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+				{
+					inputR = request->getParam("r")->value();
 				inputG = request->getParam("g")->value();
 				inputB = request->getParam("b")->value();
 				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
@@ -321,7 +319,7 @@ void wifiSetup()
 			request->send(200, "text/plain", "OK"); });
 	server.on("/updateDotColor", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputR;
+							String inputR;
 			String inputG;
 			String inputB;
 			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
@@ -335,7 +333,7 @@ void wifiSetup()
 			request->send(200, "text/plain", "OK"); });
 	server.on("/updateRingColor", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputR;
+				String inputR;
 			String inputG;
 			String inputB;
 			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
@@ -351,18 +349,18 @@ void wifiSetup()
 						{ request->send(200, "text/html", alarms_html, alarmListProcessor); });
 	server.on("/addAlarm", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String inputHours;
-			String inputMinutes;
-			if (request->hasParam("hours"), request->hasParam("minutes"))
-			{
-				inputHours = request->getParam("hours")->value();
-				inputMinutes = request->getParam("minutes")->value();
-				insertAlarm(inputHours.toInt(), inputMinutes.toInt());
-			}
-			request->send(200, "text/plain", "OK"); });
+							String inputHours;
+							String inputMinutes;
+							if (request->hasParam("hours"), request->hasParam("minutes"))
+							{
+								inputHours = request->getParam("hours")->value();
+								inputMinutes = request->getParam("minutes")->value();
+								insertAlarm(inputHours.toInt(), inputMinutes.toInt());
+							}
+							request->send(200, "text/plain", "OK"); });
 	server.on("/deleteAlarm", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
-			String index;
+								String index;
 			if (request->hasParam("index"))
 			{
 				index = request->getParam("index")->value();
@@ -413,6 +411,7 @@ void wifiSetup()
 					request->_tempFile.close();
 				}
 			});
+	dnsServer.start(53, "*", WiFi.softAPIP());
 	server.begin();
 }
 
