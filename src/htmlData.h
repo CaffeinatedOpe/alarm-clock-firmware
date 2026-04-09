@@ -55,6 +55,12 @@ const char index_html[] PROGMEM = R"rawliteral(
 		xhr.send();
 	}
 
+	function updateVolume() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/updateVolume?r=" + document.getElementById('volume').value, true);
+		xhr.send();
+	}
+
 	updateTime()
 </script>
 
@@ -82,6 +88,10 @@ const char index_html[] PROGMEM = R"rawliteral(
 		<input id="file" name="file" type="file" />
 		<button>Upload</button>
 	</form>
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change volume:</h2><br />
+  	<input type="range" min="1" max="100" value="50" class="slider" id="volume"><button type= 'button'
+		onclick= 'updateVolume()'> Submit</button>
+	
 
 </body>
 <style>

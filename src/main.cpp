@@ -345,6 +345,15 @@ void wifiSetup()
 				ringL.refresh();
 			}
 			request->send(200, "text/plain", "OK"); });
+	server.on("/updateVolume", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+				String inputVolume;
+			if (request->hasParam("volume"))
+			{
+				inputVolume = request->getParam("volume")->value();
+				i2s.setVolume((inputVolume.toInt()/100));
+			}
+			request->send(200, "text/plain", "OK"); });
 	server.on("/alarms", HTTP_GET, [](AsyncWebServerRequest *request)
 						{ request->send(200, "text/html", alarms_html, alarmListProcessor); });
 	server.on("/addAlarm", HTTP_GET, [](AsyncWebServerRequest *request)
