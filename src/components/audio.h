@@ -18,6 +18,7 @@ typedef enum{
 } AUDIOSTATUS;
 
 AUDIOSTATUS audioStatus = SILENT;
+float audioVolume;
 
 void audioSetup() {
   auto config = i2s.defaultConfig(TX_MODE);
@@ -30,7 +31,7 @@ void audioSetup() {
 
   // setup I2S based on sampling rate provided by decoder
   decoder.begin();
-	i2s.setVolume(0.5);
+	i2s.setVolume(1);
 
   // begin copy
   copier.begin(decoder, audioFile);

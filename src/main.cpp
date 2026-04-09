@@ -470,6 +470,77 @@ void processButtons()
 	}
 }
 
+File configFile;
+
+void writeConfig() {
+	configFile = SD.open("config.txt", FILE_WRITE);
+
+	configFile.print("brightness=");
+	configFile.println(display.brightness);
+	configFile.print("numberR=");
+	configFile.println(display.numberR);
+	configFile.print("numberG=");
+	configFile.println(display.numberG);
+	configFile.print("numberG=");
+	configFile.println(display.numberB);
+	configFile.print("dotR=");
+	configFile.println(display.dotR);
+	configFile.print("dotG=");
+	configFile.println(display.dotG);
+	configFile.print("dotG=");
+	configFile.println(display.dotB);
+	configFile.print("ringR=");
+	configFile.println(ringL.ringR);
+	configFile.print("ringG=");
+	configFile.println(ringL.ringG);
+	configFile.print("ringG=");
+	configFile.println(ringL.ringB);
+	configFile.println(audioVolume);
+}
+
+void writeConfig() {
+	configFile = SD.open("config.txt", FILE_WRITE);
+
+	configFile.println(display.brightness);
+
+	configFile.println(display.numberR);
+	configFile.println(display.numberG);
+	configFile.println(display.numberB);
+
+	configFile.println(display.dotR);
+	configFile.println(display.dotG);
+	configFile.println(display.dotB);
+
+	configFile.println(ringL.ringR);
+	configFile.println(ringL.ringG);
+	configFile.println(ringL.ringB);
+
+	configFile.println(audioVolume);
+
+	configFile.close();
+}	
+
+void readConfig() {
+	configFile = SD.open("config.txt", FILE_WRITE);
+
+	configFile.println(display.brightness);
+
+	configFile.println(display.numberR);
+	configFile.println(display.numberG);
+	configFile.println(display.numberB);
+
+	configFile.println(display.dotR);
+	configFile.println(display.dotG);
+	configFile.println(display.dotB);
+	
+	configFile.println(ringL.ringR);
+	configFile.println(ringL.ringG);
+	configFile.println(ringL.ringB);
+	configFile.println(audioVolume);
+
+	configFile.close();
+}	
+
 void setup()
 {
 	Serial.begin(115200);

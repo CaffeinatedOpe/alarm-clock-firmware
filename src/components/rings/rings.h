@@ -15,6 +15,10 @@ public:
 	void test();
 	void refresh();
 
+	int ringR;
+	int ringG;
+	int ringB;
+
 private:
 	CRGB leds[12];
 	CRGB color;

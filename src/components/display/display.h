@@ -23,6 +23,15 @@ public:
 	} FontOptions;
 	FontOptions font = SIXBYEIGHT;
 
+	int brightness;
+
+	int numberR;
+	int numberG;
+	int numberB;
+	int dotR;
+	int dotG;
+	int dotB;
+
 private:
 	void addTimeSeparator(int);
 	CRGB buffer[32][8];

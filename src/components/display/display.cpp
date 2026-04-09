@@ -248,11 +248,19 @@ void Display::writeTime(int min, int hour, bool militaryTime)
 
 void Display::setColor(int r, int g, int b) {
 	color = CRGB(r, g, b);
+	numberR = r;
+	numberG = g;
+	numberB = b;
+
 }
 void Display::setDotColor(int r, int g, int b) {
 	dotColor = CRGB(r, g, b);
+	dotR = r;
+	dotG = g;
+	dotB = b;
 }
 
-void Display::setBrightness(int brightness) {
-	FastLED.setBrightness(brightness);
+void Display::setBrightness(int _brightness) {
+	FastLED.setBrightness(_brightness);
+	brightness = _brightness;
 }
