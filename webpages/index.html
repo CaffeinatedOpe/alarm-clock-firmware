@@ -56,7 +56,7 @@
 
 	function updateVolume() {
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/updateVolume?r=" + document.getElementById('volume').value, true);
+		xhr.open("GET", "/updateVolume?value=" + document.getElementById('volume').value, true);
 		xhr.send();
 	}
 
