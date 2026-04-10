@@ -432,6 +432,14 @@ void wifiSetup()
 					request->_tempFile.close();
 				}
 			});
+	server.on("/saveSettings", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							writeConfig();
+							request->send(200, "text/plain", "OK"); });
+	server.on("/resetSettings", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							initConfig();
+							request->send(200, "text/plain", "OK"); });
 	dnsServer.start(53, "*", WiFi.softAPIP());
 	server.begin();
 }
@@ -612,9 +620,7 @@ void setup()
 	ringR.blank();
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
-	loopFunctions.push_back(alarmLoop);
-
-	writeConfig();
+	loopFunctions.push_back(alarmLoop);  
 	readConfig();
 }
 

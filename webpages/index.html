@@ -60,10 +60,23 @@
 		xhr.send();
 	}
 
+	function saveConfig() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/saveConfig", true);
+		xhr.send();
+	}
+
+	function resetConfig() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/resetConfig", true);
+		xhr.send();
+	}
+
 	updateTime()
 </script>
 
 <body class="centered" style="background-color: beige;">
+	<button type='button'onclick='saveConfig()'>Save Settings</button><br />
 	<h2 style="font-family: 'Times New Roman', Times, serif;">Add alarm:</h2>
 	Hour:<input type="number" id="hours" name="hours" min="0" max="24">Minute:<input type="number" id="minutes"
 		name="minutes" min="0" max="60"><button type='button' onclick='addAlarm()'> Add Alarm</button>
@@ -89,7 +102,8 @@
 	</form>
 	<h2 style="font-family: 'Times New Roman', Times, serif;">Change volume:</h2><br />
   	<input type="range" min="1" max="100" value="50" class="slider" id="volume"><button type= 'button'
-		onclick= 'updateVolume()'> Submit</button>
+		onclick= 'updateVolume()'> Submit</button><br/>
+	<button type='button'onclick='resetConfig()'>Reset Settings</button><br />
 	
 
 </body>
