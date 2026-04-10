@@ -57,48 +57,12 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 	function updateVolume() {
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/updateVolume?r=" + document.getElementById('volume').value, true);
+		xhr.open("GET", "/updateVolume?value=" + document.getElementById('volume').value, true);
 		xhr.send();
 	}
 
 	updateTime()
 </script>
-
-<body class="centered" style="background-color: beige;">
-	<h2 style="font-family: 'Times New Roman', Times, serif;">Add alarm:</h2>
-	Hour:<input type="number" id="hours" name="hours" min="0" max="24">Minute:<input type="number" id="minutes"
-		name="minutes" min="0" max="60"><button type='button' onclick='addAlarm()'> Add Alarm</button>
-	<br />
-	<h2 style="font-family: 'Times New Roman', Times, serif;">Change number color:</h2><br />
-	<input type="color" id="numcolor" value="#ff0000"><button type='button' onclick='updateNumColor()'>
-		Submit</button><br />
-	<h2 style="font-family: 'Times New Roman', Times, serif;">Change separator color:</h2><br />
-	<input type="color" id="sepcolor" value="#ff0000"><button type='button' onclick='updateSepColor()'>
-		Submit</button><br />
-	<h2 style="font-family: 'Times New Roman', Times, serif;">Change display brightness:</h2>
-	<input type="range" min="1" max="255" value="50" class="slider" id="displayBrightness"><button type='button'
-		onclick='updateDisplayBrightness()'> Submit</button><br />
-	<h2 style="font-family: 'Times New Roman', Times, serif;">Change ring color:</h2><br />
-	<input type="color" id="ringcolor" value="#ff0000"><button type='button' onclick='updateRingColor()'>
-		Submit</button><br />
-	<h2>Upload new sound</h2><br/>
-	<p>Please keep your sound file under 2mb</p><br/>
-	<form method="post" enctype="multipart/form-data">
-		<label for="file">File</label>
-		<input id="file" name="file" type="file" />
-		<button>Upload</button>
-	</form>
-	<h2 style="font-family: 'Times New Roman', Times, serif;">Change volume:</h2><br />
-  	<input type="range" min="1" max="100" value="50" class="slider" id="volume"><button type= 'button'
-		onclick= 'updateVolume()'> Submit</button>
-	
-
-</body>
-<style>
-	.centered {
-		text-align: center
-	}
-</style>
 )rawliteral";
 
 const char alarms_html[] PROGMEM = R"rawliteral(
