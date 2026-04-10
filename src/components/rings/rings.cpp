@@ -55,11 +55,8 @@ void Rings::fillColor() {
 	}
 }
 
-void Rings::setColor(int r, int g, int b) {
-	color = CRGB(r, g, b);
-	ringR = r;
-	ringG = g;
-	ringB = b;
+void Rings::setColor() {
+	color = CRGB(ringR, ringG, ringB);
 }
 
 void Rings::setBrightness(int brightness) {

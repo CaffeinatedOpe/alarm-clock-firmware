@@ -309,10 +309,12 @@ void wifiSetup()
 				String inputB;
 				if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
 				{
-					inputR = request->getParam("r")->value();
+				inputR = request->getParam("r")->value();
 				inputG = request->getParam("g")->value();
 				inputB = request->getParam("b")->value();
-				display.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				display.numberR = inputR.toInt();
+				display.numberG = inputG.toInt();
+				display.numberB = inputB.toInt(); 
 				display.writeTime(getMinutes(), getHours(), militaryTime);
 				display.refreshDisplay();
 			}
@@ -327,7 +329,9 @@ void wifiSetup()
 				inputR = request->getParam("r")->value();
 				inputG = request->getParam("g")->value();
 				inputB = request->getParam("b")->value();
-				display.setDotColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				display.dotR = inputR.toInt();
+				display.dotG = inputG.toInt();
+				display.dotB = inputB.toInt(); 
 				display.writeTime(getMinutes(), getHours(), militaryTime);
 			}
 			request->send(200, "text/plain", "OK"); });
@@ -341,8 +345,14 @@ void wifiSetup()
 				inputR = request->getParam("r")->value();
 				inputG = request->getParam("g")->value();
 				inputB = request->getParam("b")->value();
-				ringL.setColor(inputR.toInt(), inputG.toInt(), inputB.toInt());
+				ringL.ringR = inputR.toInt();
+				ringL.ringG = inputG.toInt();
+				ringL.ringB = inputB.toInt(); 
+				ringR.ringR = inputR.toInt();
+				ringR.ringG = inputG.toInt();
+				ringR.ringB = inputB.toInt();
 				ringL.refresh();
+				ringR.refresh();
 			}
 			request->send(200, "text/plain", "OK"); });
 	server.on("/updateVolume", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -352,6 +362,8 @@ void wifiSetup()
 			{
 				inputVolume = request->getParam("volume")->value();
 				i2s.setVolume((inputVolume.toInt()/100));
+				Serial.print("set volume to");
+				Serial.println((inputVolume.toInt()/100));
 			}
 			request->send(200, "text/plain", "OK"); });
 	server.on("/alarms", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -470,9 +482,7 @@ void processButtons()
 	}
 }
 
-File configFile;
-
-void writeConfig() {
+/*void writeConfig() {
 	configFile = SD.open("config.txt", FILE_WRITE);
 
 	configFile.print("brightness=");
@@ -496,50 +506,96 @@ void writeConfig() {
 	configFile.print("ringG=");
 	configFile.println(ringL.ringB);
 	configFile.println(audioVolume);
+}*/
+
+void writeConfig()
+{
+	File configFile;
+	if (SD.exists("/config.txt"))
+	{
+		SD.remove("/config.txt");
+	}
+	Serial.println("writing file");
+	configFile = SD.open("/config.txt", FILE_WRITE);
+
+	configFile.println(display.brightness);
+
+	configFile.println(display.numberR);
+	configFile.println(display.numberG);
+	configFile.println(display.numberB);
+
+	configFile.println(display.dotR);
+	configFile.println(display.dotG);
+	configFile.println(display.dotB);
+
+	configFile.println(ringL.ringR);
+	configFile.println(ringL.ringG);
+	configFile.println(ringL.ringB);
+
+	configFile.println(audioVolume);
+
+	configFile.close();
 }
 
-void writeConfig() {
-	configFile = SD.open("config.txt", FILE_WRITE);
+void initConfig()
+{
+	File configFile;
+	if (SD.exists("/config.txt"))
+	{
+		SD.remove("/config.txt");
+	}
+	Serial.println("writing file");
+	configFile = SD.open("/config.txt", FILE_WRITE);
 
-	configFile.println(display.brightness);
+	configFile.println(75);
 
-	configFile.println(display.numberR);
-	configFile.println(display.numberG);
-	configFile.println(display.numberB);
+	configFile.println(255);
+	configFile.println(255);
+	configFile.println(0);
 
-	configFile.println(display.dotR);
-	configFile.println(display.dotG);
-	configFile.println(display.dotB);
+	configFile.println(255);
+	configFile.println(255);
+	configFile.println(255);
 
-	configFile.println(ringL.ringR);
-	configFile.println(ringL.ringG);
-	configFile.println(ringL.ringB);
+	configFile.println(0);
+	configFile.println(0);
+	configFile.println(255);
 
-	configFile.println(audioVolume);
-
-	configFile.close();
-}	
-
-void readConfig() {
-	configFile = SD.open("config.txt", FILE_WRITE);
-
-	configFile.println(display.brightness);
-
-	configFile.println(display.numberR);
-	configFile.println(display.numberG);
-	configFile.println(display.numberB);
-
-	configFile.println(display.dotR);
-	configFile.println(display.dotG);
-	configFile.println(display.dotB);
-	
-	configFile.println(ringL.ringR);
-	configFile.println(ringL.ringG);
-	configFile.println(ringL.ringB);
-	configFile.println(audioVolume);
+	configFile.println(0.5);
 
 	configFile.close();
-}	
+}
+
+void readConfig()
+{
+	File configFile;
+
+	if (!SD.exists("/config.txt"))
+	{
+		initConfig();
+	}
+	configFile = SD.open("/config.txt", FILE_READ);
+	Serial.println("reading file");
+
+	display.brightness = configFile.readStringUntil('\n').toInt();
+	display.numberR = configFile.readStringUntil('\n').toInt();
+	display.numberG = configFile.readStringUntil('\n').toInt();
+	display.numberB = configFile.readStringUntil('\n').toInt();
+	display.dotR = configFile.readStringUntil('\n').toInt();
+	display.dotG = configFile.readStringUntil('\n').toInt();
+	display.dotB = configFile.readStringUntil('\n').toInt();
+	ringL.ringR = configFile.readStringUntil('\n').toInt();
+	ringL.ringG = configFile.readStringUntil('\n').toInt();
+	ringL.ringB = configFile.readStringUntil('\n').toInt();
+	ringR.ringR = ringL.ringR;
+	ringR.ringG = ringL.ringG;
+	ringR.ringB = ringL.ringB;
+	audioVolume = configFile.readStringUntil('\n').toFloat();
+
+	display.setColor();
+	ringL.setColor();
+	ringR.setColor();
+}
 
 void setup()
 {
@@ -557,6 +613,9 @@ void setup()
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);
+
+	writeConfig();
+	readConfig();
 }
 
 void loop()

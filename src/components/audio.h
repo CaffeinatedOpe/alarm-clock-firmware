@@ -31,7 +31,7 @@ void audioSetup() {
 
   // setup I2S based on sampling rate provided by decoder
   decoder.begin();
-	i2s.setVolume(1);
+	i2s.setVolume(0.5);
 
   // begin copy
   copier.begin(decoder, audioFile);

@@ -12,8 +12,8 @@ public:
 	void writeTime(int, int, bool);
 	void writeString(String);
 
-	void setColor(int, int, int);
-	void setDotColor(int, int, int);
+	void setColor();
+	void setDotColor();
 	void setBrightness(int);
 	typedef enum
 	{
