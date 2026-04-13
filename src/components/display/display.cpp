@@ -246,18 +246,11 @@ void Display::writeTime(int min, int hour, bool militaryTime)
 	refreshDisplay();
 }
 
-void Display::setColor(int r, int g, int b) {
-	color = CRGB(r, g, b);
-	numberR = r;
-	numberG = g;
-	numberB = b;
-
+void Display::setColor() {
+	color = CRGB(numberR, numberG, numberB);
 }
-void Display::setDotColor(int r, int g, int b) {
-	dotColor = CRGB(r, g, b);
-	dotR = r;
-	dotG = g;
-	dotB = b;
+void Display::setDotColor() {
+	dotColor = CRGB(dotR, dotG, dotB);
 }
 
 void Display::setBrightness(int _brightness) {

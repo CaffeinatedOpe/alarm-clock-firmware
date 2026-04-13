@@ -10,7 +10,7 @@ public:
 	void refreshDisplay();
 	void fillColor();
 
-	void setColor(int, int, int);
+	void setColor();
 	void setBrightness(int);
 	void test();
 	void refresh();
