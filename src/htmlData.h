@@ -63,13 +63,13 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 	function saveConfig() {
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/saveConfig", true);
+		xhr.open("GET", "/saveSettings", true);
 		xhr.send();
 	}
 
 	function resetConfig() {
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/resetConfig", true);
+		xhr.open("GET", "/resetSettings", true);
 		xhr.send();
 	}
 
