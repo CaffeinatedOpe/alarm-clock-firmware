@@ -1,15 +1,11 @@
-class simonSays
-{
-private:
-    /* data */
-public:
-    
-};
+#include "components/buttons/buttons.h"
+
+bool buttonState;
 
 void simonsetup(){
 
 }
 
-void simonloop(){
-
+void simonloop(bool currentButtonState){
+    currentButtonState = buttonState;
 }
