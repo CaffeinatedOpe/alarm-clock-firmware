@@ -5,6 +5,7 @@
 #include "components/rings/rings.h"
 // #include "ledRings.h"
 #include "components/display/display.h"
+#include "Simon_Says/simonSays.h"
 
 #include <iostream>
 #include <vector>
@@ -23,6 +24,7 @@ Buttons buttons = Buttons();
 Display display = Display();
 Rings ringR = Rings();
 Rings ringL = Rings();
+SimonSays simon = SimonSays();
 
 bool militaryTime = false;
 
@@ -81,6 +83,34 @@ void ringBlinks()
 	}
 }
 
+void setRingState(bool state, bool side)
+{
+	if (!side)
+	{
+		if (state)
+		{
+			ringL.fillColor();
+		}
+		else
+		{
+			ringL.blank();
+		}
+		ringL.refresh();
+	}
+	else
+	{
+		if (state)
+		{
+			ringR.fillColor();
+		}
+		else
+		{
+			ringR.blank();
+		}
+		ringR.refresh();
+	}
+}
+
 struct Time
 {
 	int minutes;
@@ -107,7 +137,8 @@ void readAlarms()
 	if (SD.exists("/alarms.txt"))
 	{
 		alarmsFile = SD.open("/alarms.txt", FILE_READ);
-		while (alarmsFile.available()) {
+		while (alarmsFile.available())
+		{
 			int hour = alarmsFile.readStringUntil('\n').toInt();
 			int minutes = alarmsFile.readStringUntil('\n').toInt();
 			alarms.push_back(Time(hour, minutes));
@@ -129,7 +160,8 @@ void writeAlarms()
 	Serial.println("writing file");
 	alarmsFile = SD.open("/alarms.txt", FILE_WRITE);
 
-	for (int i = 0; i < alarms.size(); i++) {
+	for (int i = 0; i < alarms.size(); i++)
+	{
 		alarmsFile.println(alarms[i].hours);
 		alarmsFile.println(alarms[i].minutes);
 
@@ -354,7 +386,6 @@ void readConfig()
 	ringR.setColor();
 	display.writeTime(getMinutes(), getHours(), militaryTime);
 }
-
 
 class CaptiveRequestHandler : public AsyncWebHandler
 {
@@ -640,6 +671,8 @@ void setup()
 	loopFunctions.push_back(processButtons);
 	loopFunctions.push_back(updateTimeDisplay);
 	loopFunctions.push_back(alarmLoop);
+
+	simon.ringControlFunc = setRingState;
 }
 
 void loop()
