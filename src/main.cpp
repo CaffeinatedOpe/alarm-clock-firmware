@@ -104,7 +104,7 @@ void readAlarms()
 {
 	File alarmsFile;
 
-	if (!SD.exists("/alarms.txt"))
+	if (SD.exists("/alarms.txt"))
 	{
 		alarmsFile = SD.open("/alarms.txt", FILE_READ);
 		while (alarmsFile.available()) {
@@ -586,12 +586,10 @@ void processButtons()
 		{
 		case Buttons::LEFT_PRESS:
 			Serial.println("left press");
-			writeAlarms();
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		case Buttons::RIGHT_PRESS:
 			Serial.println("right press");
-			readAlarms();
 			/*
 			toggleAudioState();
 			if (audioStatus == SILENT)
