@@ -24,4 +24,5 @@ class Buttons{
 		int button_r;
 		bool button_l_state;
 		bool button_r_state;
+		long debounceTimer;
 };
