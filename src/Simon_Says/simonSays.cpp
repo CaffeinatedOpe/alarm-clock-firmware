@@ -3,15 +3,18 @@
 
 void SimonSays::setButtonPressL()
 {
-	if (takeUserInput && step < difficulty * 2) // check if we're in the range of taking user input
+	if (takeUserInput && (step < difficulty * 2)) // check if we're in the range of taking user input
 	{
 		if (!steps[step - difficulty])
 		{
+			Serial.println("correct");
 			step++; // moves on
 							// good noodle
 		}
 		else
 		{
+			step = 0;
+			Serial.println("incorrect");
 			// bad noodle
 			// err or something
 		}
@@ -20,15 +23,18 @@ void SimonSays::setButtonPressL()
 
 void SimonSays::setButtonPressR()
 {
-	if (takeUserInput && step < difficulty * 2) // check if we're in the range of taking user input
+	if (takeUserInput && (step < difficulty * 2)) // check if we're in the range of taking user input
 	{
 		if (steps[step - difficulty])
 		{
+			Serial.println("correct");
 			step++; // moves on
 							// good noodle
 		}
 		else
 		{
+			step = 0;
+			Serial.println("incorrect");
 			// bad noodle
 			// err or something
 		}
@@ -38,12 +44,14 @@ void SimonSays::setButtonPressR()
 void SimonSays::simonInit()
 {
 	step = 0;
+	Serial.println("init simon");
 	ringState = false;
+	takeUserInput = false;
 	steps = {};
 
 	for (int i = 0; i <= difficulty; i++)
 	{
-		int val = random() % 2;
+		long val = random() % 2;
 		if (val == 0)
 		{
 			steps.push_back(true);
@@ -55,7 +63,7 @@ void SimonSays::simonInit()
 	}
 }
 
-void SimonSays::simonloop(bool currentButtonState)
+void SimonSays::simonloop()
 {
 	unsigned long currentmillis = millis();
 	int diff = currentmillis - timeSinceChange;
@@ -63,23 +71,30 @@ void SimonSays::simonloop(bool currentButtonState)
 	{
 		if (diff > delay)
 		{
-			if (currentButtonState == false)
+			Serial.println("loop simon");
+			if (!ringState)
 			{
 				ringControlFunc(true, steps[step]);
-				currentButtonState == true;
+				ringState = true;
 			}
 			else
 			{
 				ringControlFunc(false, steps[step]);
+				Serial.println("aaaaa");
 				step++;
-				currentButtonState = false;
+				ringState = false;
 			}
 			timeSinceChange = currentmillis;
+			Serial.println(step);
 		}
+		}
+	if (step == difficulty){
+		takeUserInput = true;
 	}
-	if (step == difficulty * 2)
+	if (step == (difficulty * 2))
 	{
-		step = 0;
 		finishFunction();
+		step = 0;
+		takeUserInput = false;
 	}
 }

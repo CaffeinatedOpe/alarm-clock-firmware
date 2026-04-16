@@ -14,7 +14,7 @@ public:
 	void setButtonPressL();
 	void setButtonPressR();
 	void simonInit();
-	void simonloop(bool currentButtonState);
+	void simonloop();
 	bool takeUserInput;
 
 private:

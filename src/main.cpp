@@ -3,7 +3,6 @@
 #include "components/timeTelling.h"
 #include "components/buttons/buttons.h"
 #include "components/rings/rings.h"
-// #include "ledRings.h"
 #include "components/display/display.h"
 #include "Simon_Says/simonSays.h"
 
@@ -27,6 +26,9 @@ Rings ringL = Rings();
 SimonSays simon = SimonSays();
 
 bool militaryTime = false;
+bool simonSaysActive = false;
+void (*ringControlFunc)();
+void (*finishFunction)();
 
 typedef enum
 {
@@ -85,6 +87,7 @@ void ringBlinks()
 
 void setRingState(bool state, bool side)
 {
+	Serial.println("setting ring state");
 	if (!side)
 	{
 		if (state)
@@ -278,6 +281,20 @@ void alarmLoop()
 			}
 		}
 		alarmTimeMillis = currentmillis;
+	}
+}
+
+void stopAlarm()
+{
+	if (alarmStatus == SOUNDING_ALARM)
+	{
+		loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
+		alarmStatus = SILENCED;
+	}
+	if (audioStatus == PLAYING)
+	{
+		stopAudio();
+		loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
 	}
 }
 
@@ -617,26 +634,12 @@ void processButtons()
 		{
 		case Buttons::LEFT_PRESS:
 			Serial.println("left press");
+			simon.setButtonPressL();
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		case Buttons::RIGHT_PRESS:
 			Serial.println("right press");
-			/*
-			toggleAudioState();
-			if (audioStatus == SILENT)
-			{ // this will be post-state swap
-				loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
-			}
-			else
-			{
-				loopFunctions.push_back(playAudioLoop);
-			}
-			if (alarmStatus == SOUNDING_ALARM)
-			{
-				loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
-				alarmStatus = SILENCED;
-			}
-			*/
+			simon.setButtonPressR();
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		case Buttons::LEFT_RELEASE:
@@ -649,6 +652,15 @@ void processButtons()
 			break;
 		}
 	}
+}
+
+void simonLoop()
+{
+	simon.simonloop();
+}
+void simonEnd() {
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), simonLoop));
+	stopAlarm();
 }
 
 void setup()
@@ -673,6 +685,10 @@ void setup()
 	loopFunctions.push_back(alarmLoop);
 
 	simon.ringControlFunc = setRingState;
+	simon.finishFunction = stopAlarm;
+
+	simon.simonInit();
+	loopFunctions.push_back(simonLoop);
 }
 
 void loop()
