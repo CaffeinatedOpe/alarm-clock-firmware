@@ -51,7 +51,7 @@ void SimonSays::simonInit()
 
 	for (int i = 0; i <= difficulty; i++)
 	{
-		long val = random() % 2;
+		long val = millis() % 2;
 		if (val == 0)
 		{
 			steps.push_back(true);

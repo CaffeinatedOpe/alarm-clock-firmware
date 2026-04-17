@@ -26,9 +26,9 @@ Rings ringL = Rings();
 SimonSays simon = SimonSays();
 
 bool militaryTime = false;
-bool simonSaysActive = false;
-void (*ringControlFunc)();
-void (*finishFunction)();
+bool simonSaysActive = true;
+void (*buttonLFunc)();
+void (*buttonRFunc)();
 
 typedef enum
 {
@@ -124,6 +124,10 @@ struct Time
 		minutes = m;
 	}
 };
+
+void noop()
+{
+}
 
 vector<Time> alarms = {};
 
@@ -259,6 +263,35 @@ void loopPrevention()
 	}
 }
 
+void stopAlarm()
+{
+	Serial.println("stopping alarms");
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
+	alarmStatus = SILENCED;
+	stopAudio();
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
+	buttonLFunc = noop;
+	buttonRFunc = noop;
+}
+
+void simonLoop()
+{
+	simon.simonloop();
+}
+void simonL()
+{
+	simon.setButtonPressL();
+}
+void simonR()
+{
+	simon.setButtonPressR();
+}
+void simonEnd()
+{
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), simonLoop));
+	stopAlarm();
+}
+
 unsigned long alarmTimeMillis; // used to lower the frequency of screen updates
 void alarmLoop()
 {
@@ -273,28 +306,26 @@ void alarmLoop()
 			{
 				Serial.println("Sounding Alarm");
 				startAudio();
-				loopFunctions.push_back(ringBlinks);
 				loopFunctions.push_back(playAudioLoop);
 				loopFunctions.push_back(loopPrevention);
 				alarmStatus = SOUNDING_ALARM;
 				getNextAlarm();
+				if (simonSaysActive)
+				{
+					buttonLFunc = simonL;
+					buttonRFunc = simonR;
+					simon.simonInit();
+					loopFunctions.push_back(simonLoop);
+				}
+				else
+				{
+					buttonLFunc = stopAlarm;
+					buttonRFunc = stopAlarm;
+					loopFunctions.push_back(ringBlinks);
+				}
 			}
 		}
 		alarmTimeMillis = currentmillis;
-	}
-}
-
-void stopAlarm()
-{
-	if (alarmStatus == SOUNDING_ALARM)
-	{
-		loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
-		alarmStatus = SILENCED;
-	}
-	if (audioStatus == PLAYING)
-	{
-		stopAudio();
-		loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
 	}
 }
 
@@ -340,6 +371,16 @@ void writeConfig()
 	configFile.println(ringL.ringG);
 	configFile.println(ringL.ringB);
 
+	if (simonSaysActive)
+	{
+		configFile.println("1");
+	}
+	else
+	{
+		configFile.println("0");
+	}
+	configFile.println();
+
 	configFile.close();
 }
 
@@ -368,6 +409,7 @@ void initConfig()
 	configFile.println(255);
 
 	configFile.println(0.5);
+	configFile.println(1);
 
 	configFile.close();
 }
@@ -397,6 +439,14 @@ void readConfig()
 	ringR.ringG = ringL.ringG;
 	ringR.ringB = ringL.ringB;
 	audioVolume = configFile.readStringUntil('\n').toFloat();
+	if (simonSaysActive = configFile.readStringUntil('\n') == "1")
+	{
+		simonSaysActive = true;
+	}
+	else
+	{
+		simonSaysActive = false;
+	}
 
 	display.setColor();
 	ringL.setColor();
@@ -621,6 +671,16 @@ void wifiSetup()
 						{
 							initConfig();
 							request->send(200, "text/plain", "OK"); });
+	server.on("/simonOn", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							simonSaysActive = true;
+							writeConfig();
+							request->send(200, "text/plain", "OK"); });
+	server.on("/simonOff", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							simonSaysActive = false;
+							writeConfig();
+							request->send(200, "text/plain", "OK"); });
 	dnsServer.start(53, "*", WiFi.softAPIP());
 	server.begin();
 }
@@ -634,12 +694,12 @@ void processButtons()
 		{
 		case Buttons::LEFT_PRESS:
 			Serial.println("left press");
-			simon.setButtonPressL();
+			buttonLFunc();
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		case Buttons::RIGHT_PRESS:
 			Serial.println("right press");
-			simon.setButtonPressR();
+			buttonRFunc();
 			buttons.buttonEvents.erase(buttons.buttonEvents.begin());
 			break;
 		case Buttons::LEFT_RELEASE:
@@ -652,15 +712,6 @@ void processButtons()
 			break;
 		}
 	}
-}
-
-void simonLoop()
-{
-	simon.simonloop();
-}
-void simonEnd() {
-	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), simonLoop));
-	stopAlarm();
 }
 
 void setup()
@@ -686,9 +737,6 @@ void setup()
 
 	simon.ringControlFunc = setRingState;
 	simon.finishFunction = stopAlarm;
-
-	simon.simonInit();
-	loopFunctions.push_back(simonLoop);
 }
 
 void loop()

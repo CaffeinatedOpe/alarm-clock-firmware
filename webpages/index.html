@@ -71,6 +71,16 @@
 		xhr.open("GET", "/resetSettings", true);
 		xhr.send();
 	}
+	function simonOn(){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/simonOn", true);
+		xhr.send();
+	}
+	function simonOff(){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/simonOff", true);
+		xhr.send();
+	}
 
 	updateTime()
 </script>
@@ -104,6 +114,10 @@
   	<input type="range" min="1" max="100" value="50" class="slider" id="volume"><button type= 'button'
 		onclick= 'updateVolume()'> Submit</button><br/>
 	<button type='button'onclick='resetConfig()'>Reset Settings</button><br />
+	<button type='button' onclick='simonOn()'>
+		Simon On</button><br />
+	<button type='button' onclick='simonOff()'>
+		Simon Off</button><br />
 	
 
 </body>

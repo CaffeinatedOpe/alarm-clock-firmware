@@ -15,6 +15,8 @@ public:
 	void setColor();
 	void setDotColor();
 	void setBrightness(int);
+
+	void copyBuffer(int, int[32][8][2]);
 	typedef enum
 	{
 		EIGHTBYEIGHT,

@@ -246,6 +246,19 @@ void Display::writeTime(int min, int hour, bool militaryTime)
 	refreshDisplay();
 }
 
+void Display::copyBuffer(int x, int buf[32][8][2]){
+	for (int y = 0; y < 8; y++)
+		{
+			for (int x = 0; x < 8; x++)
+			{
+				if (buf[x][y][0] == 1)
+				{
+					buffer[x + x][y] = color;
+				}
+			}
+		}
+}
+
 void Display::setColor() {
 	color = CRGB(numberR, numberG, numberB);
 }
