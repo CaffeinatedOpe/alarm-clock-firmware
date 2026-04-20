@@ -23,16 +23,14 @@ public:
 	{
 		FULL,
 		HALF,
-		ANGRY,
-		NONE
+		ANGRY
 	} EYESTATE;
 
 	typedef enum
 	{
 		SMILE,
 		FULLFLAT,
-		SHORTFLAT,
-		NONE
+		SHORTFLAT
 	} MOUTHSTATE;
 
 private:

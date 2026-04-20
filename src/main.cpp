@@ -4,7 +4,7 @@
 #include "components/buttons/buttons.h"
 #include "components/rings/rings.h"
 #include "components/display/display.h"
-#include "Simon_Says/simonSays.h"
+#include "simon_says/simonSays.h"
 
 #include <iostream>
 #include <vector>
