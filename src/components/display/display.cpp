@@ -246,17 +246,32 @@ void Display::writeTime(int min, int hour, bool militaryTime)
 	refreshDisplay();
 }
 
-void Display::copyBuffer(int x, int buf[32][8][2]){
-	for (int y = 0; y < 8; y++)
+void Display::copyBuffer(bool flip, int offsetx, int buf[8][8][2]){
+	if (flip){
+
+		for (int y = 0; y < 8; y++)
 		{
 			for (int x = 0; x < 8; x++)
 			{
-				if (buf[x][y][0] == 1)
+				if (buf[8-x][y][3] == 1)
 				{
-					buffer[x + x][y] = color;
+					buffer[offsetx + x][y] = CRGB(buf[8-x][y][0], buf[8-x][y][1], buf[8-x][y][2]);
 				}
 			}
 		}
+	}
+	else{
+		for (int y = 0; y < 8; y++)
+		{
+			for (int x = 0; x < 8; x++)
+			{
+				if (buf[x][y][3] == 1)
+				{
+					buffer[offsetx + x][y] = CRGB(buf[x][y][0], buf[x][y][1], buf[x][y][2]);
+				}
+			}
+		}
+	}
 }
 
 void Display::setColor() {
