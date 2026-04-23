@@ -5,6 +5,7 @@
 #include "components/rings/rings.h"
 #include "components/display/display.h"
 #include "simon_says/simonSays.h"
+#include "little_guy/littleGuy.h"
 
 #include <iostream>
 #include <vector>
@@ -24,7 +25,9 @@ Display display = Display();
 Rings ringR = Rings();
 Rings ringL = Rings();
 SimonSays simon = SimonSays();
+LittleGuy lilguy = LittleGuy();
 
+bool snooze = false;
 bool militaryTime = false;
 bool simonSaysActive = true;
 void (*buttonLFunc)();
@@ -127,6 +130,22 @@ struct Time
 
 void noop()
 {
+}
+void test1()
+{
+	lilguy.guySad();
+	lilguy.drawGuy();
+	display.copyBuffer(false, 0, lilguy.guyBuffer);
+	display.refreshDisplay();
+	Serial.println("drew guy");
+}
+void test2()
+{
+	lilguy.guyHappy();
+	lilguy.drawGuy();
+	display.copyBuffer(false, 0, lilguy.guyBuffer);
+	display.refreshDisplay();
+	Serial.println("drew guy");
 }
 
 vector<Time> alarms = {};
@@ -272,6 +291,8 @@ void stopAlarm()
 	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
 	buttonLFunc = noop;
 	buttonRFunc = noop;
+	writeConfig();
+	snooze = false;
 }
 
 void simonLoop()
@@ -292,6 +313,63 @@ void simonEnd()
 	stopAlarm();
 }
 
+unsigned long timingMillis;
+void soundAlarm()
+{
+	playAudioLoop();
+	unsigned long currentmillis = millis();
+	long diff = currentmillis - timingMillis;
+	if (diff > 300000)
+	{
+		snooze == true;
+		lilguy.guySad();
+		simon.difficulty = 7 - lilguy.happiness;
+		timingMillis = currentmillis;
+		lilguy.guySad();
+		lilguy.drawGuy();
+		display.copyBuffer(false, 0, lilguy.guyBuffer);
+		display.refreshDisplay();
+	}
+	if (snooze && diff > 60000)
+	{
+		lilguy.happiness -= 1;
+		lilguy.guySad();
+		timingMillis = currentmillis;
+		simon.difficulty = 7 - lilguy.happiness;
+		lilguy.guySad();
+		lilguy.drawGuy();
+		display.copyBuffer(false, 0, lilguy.guyBuffer);
+		display.refreshDisplay();
+	}
+}
+
+void startAlarm()
+{
+	Serial.println("Sounding Alarm");
+	startAudio();
+	loopFunctions.push_back(playAudioLoop);
+	loopFunctions.push_back(loopPrevention);
+	alarmStatus = SOUNDING_ALARM;
+	getNextAlarm();
+	if (simonSaysActive)
+	{
+		buttonLFunc = simonL;
+		buttonRFunc = simonR;
+		simon.simonInit();
+		loopFunctions.push_back(simonLoop);
+	}
+	else
+	{
+		buttonLFunc = stopAlarm;
+		buttonRFunc = stopAlarm;
+		loopFunctions.push_back(ringBlinks);
+	}
+	lilguy.guySad();
+	lilguy.drawGuy();
+	display.copyBuffer(false, 0, lilguy.guyBuffer);
+	display.refreshDisplay();
+}
+
 unsigned long alarmTimeMillis; // used to lower the frequency of screen updates
 void alarmLoop()
 {
@@ -304,25 +382,8 @@ void alarmLoop()
 		{
 			if (nextAlarm.minutes == getMinutes() && alarmStatus == IDLE)
 			{
-				Serial.println("Sounding Alarm");
-				startAudio();
-				loopFunctions.push_back(playAudioLoop);
-				loopFunctions.push_back(loopPrevention);
-				alarmStatus = SOUNDING_ALARM;
-				getNextAlarm();
-				if (simonSaysActive)
-				{
-					buttonLFunc = simonL;
-					buttonRFunc = simonR;
-					simon.simonInit();
-					loopFunctions.push_back(simonLoop);
-				}
-				else
-				{
-					buttonLFunc = stopAlarm;
-					buttonRFunc = stopAlarm;
-					loopFunctions.push_back(ringBlinks);
-				}
+				timingMillis = currentmillis;
+				startAlarm();
 			}
 		}
 		alarmTimeMillis = currentmillis;
@@ -371,6 +432,8 @@ void writeConfig()
 	configFile.println(ringL.ringG);
 	configFile.println(ringL.ringB);
 
+	configFile.println(audioVolume);
+
 	if (simonSaysActive)
 	{
 		configFile.println("1");
@@ -379,7 +442,20 @@ void writeConfig()
 	{
 		configFile.println("0");
 	}
-	configFile.println();
+
+	configFile.println(lilguy.happiness);
+
+	configFile.println(lilguy.guyBodyColor[0]);
+	configFile.println(lilguy.guyBodyColor[1]);
+	configFile.println(lilguy.guyBodyColor[2]);
+
+	configFile.println(lilguy.guyOutlineColor[0]);
+	configFile.println(lilguy.guyOutlineColor[1]);
+	configFile.println(lilguy.guyOutlineColor[2]);
+
+	configFile.println(lilguy.guyAccentColor[0]);
+	configFile.println(lilguy.guyAccentColor[1]);
+	configFile.println(lilguy.guyAccentColor[2]);
 
 	configFile.close();
 }
@@ -447,6 +523,16 @@ void readConfig()
 	{
 		simonSaysActive = false;
 	}
+	lilguy.happiness = configFile.readStringUntil('\n').toInt();
+	lilguy.guyBodyColor[0] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyBodyColor[1] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyBodyColor[2] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyOutlineColor[0] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyOutlineColor[1] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyOutlineColor[2] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyAccentColor[0] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyAccentColor[1] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyAccentColor[2] = configFile.readStringUntil('\n').toInt();
 
 	display.setColor();
 	ringL.setColor();
@@ -681,6 +767,61 @@ void wifiSetup()
 							simonSaysActive = false;
 							writeConfig();
 							request->send(200, "text/plain", "OK"); });
+	server.on("/updateBodyColor", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+				String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+
+				lilguy.guyBodyColor[0] = inputR.toInt();
+				lilguy.guyBodyColor[1] = inputG.toInt();
+				lilguy.guyBodyColor[2] = inputB.toInt();
+				
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateOutlineColor", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+				String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+
+				lilguy.guyOutlineColor[0] = inputR.toInt();
+				lilguy.guyOutlineColor[1] = inputG.toInt();
+				lilguy.guyOutlineColor[2] = inputB.toInt();
+				
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/updateAccentColor", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+				String inputR;
+			String inputG;
+			String inputB;
+			if (request->hasParam("r"), request->hasParam("g"), request->hasParam("b"))
+			{
+				inputR = request->getParam("r")->value();
+				inputG = request->getParam("g")->value();
+				inputB = request->getParam("b")->value();
+				
+				lilguy.guyAccentColor[0] = inputR.toInt();
+				lilguy.guyAccentColor[1] = inputG.toInt();
+				lilguy.guyAccentColor[2] = inputB.toInt();
+				
+			}
+			request->send(200, "text/plain", "OK"); });
+	server.on("/soundAlarm", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							startAlarm();
+							request->send(200, "text/plain", "OK"); });
 	dnsServer.start(53, "*", WiFi.softAPIP());
 	server.begin();
 }
@@ -737,6 +878,10 @@ void setup()
 
 	simon.ringControlFunc = setRingState;
 	simon.finishFunction = stopAlarm;
+	Serial.println(lilguy.happiness);
+
+	buttonLFunc = test1;
+	buttonRFunc = test2;
 }
 
 void loop()

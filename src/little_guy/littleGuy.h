@@ -8,6 +8,8 @@ public:
 	void renderGuy();
 	void drawGuy();
 	int guyBodyColor[3] = {255, 50, 50};
+	int guyWorkingBodyColor[3] = {255, 255, 255};
+	int guyWorkingOutlineColor[3] = {255, 255, 255};
 	int guyOutlineColor[3] = {250, 0, 0};
 	int guyAccentColor[3] = {0, 0, 255};
 
@@ -32,12 +34,12 @@ public:
 		FULLFLAT,
 		SHORTFLAT
 	} MOUTHSTATE;
+	int happiness = 5;
+	int guyBuffer[8][8][4];
 
 private:
-	int happiness = 5;
 
 	// buffer is [x][y][red, green, blue, alpha]
-	int guyBuffer[8][8][4];
 	int guyBody[8][8] = {
 			{0, 0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0, 0},

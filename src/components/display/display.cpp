@@ -246,7 +246,7 @@ void Display::writeTime(int min, int hour, bool militaryTime)
 	refreshDisplay();
 }
 
-void Display::copyBuffer(bool flip, int offsetx, int buf[8][8][2]){
+void Display::copyBuffer(bool flip, int offsetx, int buf[8][8][4]){
 	if (flip){
 
 		for (int y = 0; y < 8; y++)

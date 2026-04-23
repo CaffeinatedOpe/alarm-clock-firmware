@@ -3,11 +3,27 @@
 void LittleGuy::guyInit()
 {
 	happiness = 5;
+	guyWorkingBodyColor[0] = guyBodyColor[0];
+	guyWorkingBodyColor[1] = guyBodyColor[1];
+	guyWorkingBodyColor[2] = guyBodyColor[2];
+	guyWorkingOutlineColor[0] = guyOutlineColor[0];
+	guyWorkingOutlineColor[1] = guyOutlineColor[1];
+	guyWorkingOutlineColor[2] = guyOutlineColor[2];
 }
 
 void LittleGuy::guySad()
 {
 	happiness -= 1;
+	if (happiness <= 1)
+	{
+		happiness = 1;
+		guyWorkingBodyColor[0] = 255;
+		guyWorkingBodyColor[1] = 255;
+		guyWorkingBodyColor[2] = 255;
+		guyWorkingOutlineColor[0] = 255;
+		guyWorkingOutlineColor[1] = 255;
+		guyWorkingOutlineColor[2] = 255;
+	}
 }
 
 void LittleGuy::guyHappy()
@@ -16,13 +32,34 @@ void LittleGuy::guyHappy()
 	{
 		happiness += 1;
 	}
+	guyWorkingBodyColor[0] = guyBodyColor[0];
+	guyWorkingBodyColor[1] = guyBodyColor[1];
+	guyWorkingBodyColor[2] = guyBodyColor[2];
+	guyWorkingOutlineColor[0] = guyOutlineColor[0];
+	guyWorkingOutlineColor[1] = guyOutlineColor[1];
+	guyWorkingOutlineColor[2] = guyOutlineColor[2];
 }
 
-void LittleGuy::drawGuy(){
-	switch (happiness) {
+void LittleGuy::drawGuy()
+{
+	switch (happiness)
+	{
 
-		case  5:
-		renderGuy(SMILE, FULL);
+	case 5:
+		renderGuy(SMILE, HALF);
+		break;
+	case 4:
+		renderGuy(FULLFLAT, FULL);
+		break;
+	case 3:
+		renderGuy(SHORTFLAT, HALF);
+		break;
+	case 2:
+		renderGuy(FULLFLAT, ANGRY);
+		break;
+	case 1:
+		renderGuy(FULLFLAT, FULL);
+		break;
 	}
 }
 
@@ -34,16 +71,16 @@ void LittleGuy::renderGuy(MOUTHSTATE mouth, EYESTATE eye)
 		{
 			if (guyBody[y][x] == 1)
 			{
-				guyBuffer[x][y][0] = guyBodyColor[0];
-				guyBuffer[x][y][1] = guyBodyColor[1];
-				guyBuffer[x][y][2] = guyBodyColor[2];
+				guyBuffer[x][y][0] = guyWorkingBodyColor[0];
+				guyBuffer[x][y][1] = guyWorkingBodyColor[1];
+				guyBuffer[x][y][2] = guyWorkingBodyColor[2];
 				guyBuffer[x][y][3] = 1;
 			}
 			else if (guyOutline[y][x] == 1)
 			{
-				guyBuffer[x][y][0] = guyOutlineColor[0];
-				guyBuffer[x][y][1] = guyOutlineColor[1];
-				guyBuffer[x][y][2] = guyOutlineColor[2];
+				guyBuffer[x][y][0] = guyWorkingOutlineColor[0];
+				guyBuffer[x][y][1] = guyWorkingOutlineColor[1];
+				guyBuffer[x][y][2] = guyWorkingOutlineColor[2];
 				guyBuffer[x][y][3] = 1;
 			}
 			else
@@ -210,4 +247,12 @@ void LittleGuy::renderGuy(MOUTHSTATE mouth, EYESTATE eye)
 		guyBuffer[5][3][3] = 1;
 		break;
 	}
+	guyBuffer[1][0][0] = guyAccentColor[0];
+	guyBuffer[1][0][1] = guyAccentColor[1];
+	guyBuffer[1][0][2] = guyAccentColor[2];
+	guyBuffer[1][0][3] = 1;
+	guyBuffer[7][0][0] = guyAccentColor[0];
+	guyBuffer[7][0][1] = guyAccentColor[1];
+	guyBuffer[7][0][2] = guyAccentColor[2];
+	guyBuffer[7][0][3] = 1;
 }

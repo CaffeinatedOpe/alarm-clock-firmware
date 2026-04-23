@@ -57,7 +57,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 	function updateVolume() {
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/updateVolume?value=" + document.getElementById('volume').value, true);
+		xhr.open("GET", "/updateVolume?volume=" + document.getElementById('volume').value, true);
 		xhr.send();
 	}
 
@@ -82,6 +82,24 @@ const char index_html[] PROGMEM = R"rawliteral(
 		xhr.open("GET", "/simonOff", true);
 		xhr.send();
 	}
+	function updateBodyColor() {
+		var xhr = new XMLHttpRequest();
+		var color = hexToRgb(document.getElementById('bodycolor').value);
+		xhr.open("GET", "/updateBodyColor?r=" + color.r + "&g=" + color.g + "&b=" + color.b, true);
+		xhr.send();
+	}
+	function updateOutlineColor() {
+		var xhr = new XMLHttpRequest();
+		var color = hexToRgb(document.getElementById('outlinecolor').value);
+		xhr.open("GET", "/updateOutlineColor?r=" + color.r + "&g=" + color.g + "&b=" + color.b, true);
+		xhr.send();
+	}
+	function updateAccentColor() {
+		var xhr = new XMLHttpRequest();
+		var color = hexToRgb(document.getElementById('accentcolor').value);
+		xhr.open("GET", "/updateAccentColor?r=" + color.r + "&g=" + color.g + "&b=" + color.b, true);
+		xhr.send();
+	}
 
 	updateTime()
 </script>
@@ -104,6 +122,15 @@ const char index_html[] PROGMEM = R"rawliteral(
 	<h2 style="font-family: 'Times New Roman', Times, serif;">Change ring color:</h2><br />
 	<input type="color" id="ringcolor" value="#ff0000"><button type='button' onclick='updateRingColor()'>
 		Submit</button><br />
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change Alarmagatchi body color:</h2><br />
+	<input type="color" id="bodycolor" value="#ff0000"><button type='button' onclick='updateBodyColor()'>
+		Submit</button><br />
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change Alarmagatchi outline color:</h2><br />
+	<input type="color" id="outlinecolor" value="#ff0000"><button type='button' onclick='updateOutlineColor()'>
+		Submit</button><br />
+	<h2 style="font-family: 'Times New Roman', Times, serif;">Change Alarmagatchi accent color:</h2><br />
+	<input type="color" id="accentcolor" value="#ff0000"><button type='button' onclick='updateAccentColor()'>
+		Submit</button><br />
 	<h2>Upload new sound</h2><br/>
 	<p>Please keep your sound file under 2mb</p><br/>
 	<form method="post" enctype="multipart/form-data">
@@ -119,6 +146,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 		Simon On</button><br />
 	<button type='button' onclick='simonOff()'>
 		Simon Off</button><br />
+	<a href="/alarms.html">To Alarms Page</a>
 	
 
 </body>
@@ -139,12 +167,17 @@ const char alarms_html[] PROGMEM = R"rawliteral(
 		location.reload();
 	}
 </script>
-<body style = "background-color: EDE8D0;">
+<body style = "background-color: beige;">
 	<div class="centered">
-		<h1 style="font-family: fantasy;">Current Alarms</h1>
+		<h1 style="font-family: 'Times New Roman', Times, serif;">Current Alarms</h1>
 		%ALARMS%
 
+		//Testing entry for css, REMOVE BEFORE DEPLOYING
+		<p style="font-family: 'Times New Roman', Times, serif;" class='time'>7:31</p><button type='button' onclick='deleteAlarm(0)'>Delete</button>
+		//End test entry
+
 	</div>
+	<a href="/index.html">To Setup Page</a>
 </body>
 <style>
 	.centered {
