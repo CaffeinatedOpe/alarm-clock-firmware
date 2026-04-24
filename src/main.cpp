@@ -27,6 +27,19 @@ Rings ringL = Rings();
 SimonSays simon = SimonSays();
 LittleGuy lilguy = LittleGuy();
 
+void drawGuy()
+{
+	lilguy.drawGuy();
+	int position = millis() % 20;
+	int flip = millis() % 2;
+	if(flip == 1) {
+		display.copyBuffer(false, position, lilguy.guyBuffer);
+	}
+	else {
+		display.copyBuffer(true, position, lilguy.guyBuffer);
+	}
+}
+
 bool snooze = false;
 bool militaryTime = false;
 bool simonSaysActive = true;
@@ -45,6 +58,155 @@ Status alarmStatus = IDLE;
 // remove when not needed, add when needed. keeps loops optimized.
 vector<void (*)()> loopFunctions = {};
 
+void writeConfig()
+{
+	File configFile;
+	if (SD.exists("/config.txt"))
+	{
+		SD.remove("/config.txt");
+	}
+	Serial.println("writing file");
+	configFile = SD.open("/config.txt", FILE_WRITE);
+
+	configFile.println(display.brightness);
+
+	configFile.println(display.numberR);
+	configFile.println(display.numberG);
+	configFile.println(display.numberB);
+
+	configFile.println(display.dotR);
+	configFile.println(display.dotG);
+	configFile.println(display.dotB);
+
+	configFile.println(ringL.ringR);
+	configFile.println(ringL.ringG);
+	configFile.println(ringL.ringB);
+
+	configFile.println(audioVolume);
+
+	if (simonSaysActive)
+	{
+		configFile.println("1");
+	}
+	else
+	{
+		configFile.println("0");
+	}
+
+	configFile.println(lilguy.happiness);
+
+	configFile.println(lilguy.guyBodyColor[0]);
+	configFile.println(lilguy.guyBodyColor[1]);
+	configFile.println(lilguy.guyBodyColor[2]);
+
+	configFile.println(lilguy.guyOutlineColor[0]);
+	configFile.println(lilguy.guyOutlineColor[1]);
+	configFile.println(lilguy.guyOutlineColor[2]);
+
+	configFile.println(lilguy.guyAccentColor[0]);
+	configFile.println(lilguy.guyAccentColor[1]);
+	configFile.println(lilguy.guyAccentColor[2]);
+
+	configFile.close();
+}
+
+void initConfig()
+{
+	File configFile;
+	if (SD.exists("/config.txt"))
+	{
+		SD.remove("/config.txt");
+	}
+	Serial.println("writing file");
+	configFile = SD.open("/config.txt", FILE_WRITE);
+
+	configFile.println(75); // display.brightness
+
+	configFile.println(255); // display.numberR
+	configFile.println(255); // display.numberG
+	configFile.println(255); // display.numberB
+
+	configFile.println(255); // display.dotR
+	configFile.println(255); // display.dotG
+	configFile.println(255); // display.dotB
+
+	configFile.println(255); // ringL.ringR
+	configFile.println(255); // ringL.ringG
+	configFile.println(255); // ringL.ringB
+
+	configFile.println(0.5); // audioVolume
+
+	configFile.println(1); // simonsaysactive
+
+	configFile.println(5); // lilguy.happiness
+
+	configFile.println(255); // lilguy.guyBodyColor[0]
+	configFile.println(255); // lilguy.guyBodyColor[1]
+	configFile.println(255); // lilguy.guyBodyColor[2]
+
+	configFile.println(255); // lilguy.guyOutlineColor[0]
+	configFile.println(255); // lilguy.guyOutlineColor[1]
+	configFile.println(255); // lilguy.guyOutlineColor[2]
+
+	configFile.println(255); // lilguy.guyAccentColor[0]
+	configFile.println(255); // lilguy.guyAccentColor[1]
+	configFile.println(255); // lilguy.guyAccentColor[2]
+
+	configFile.close();
+	;
+}
+
+void readConfig()
+{
+	File configFile;
+
+	if (!SD.exists("/config.txt"))
+	{
+		initConfig();
+	}
+	configFile = SD.open("/config.txt", FILE_READ);
+	Serial.println("reading file");
+
+	display.brightness = configFile.readStringUntil('\n').toInt();
+	display.numberR = configFile.readStringUntil('\n').toInt();
+	display.numberG = configFile.readStringUntil('\n').toInt();
+	display.numberB = configFile.readStringUntil('\n').toInt();
+	display.dotR = configFile.readStringUntil('\n').toInt();
+	display.dotG = configFile.readStringUntil('\n').toInt();
+	display.dotB = configFile.readStringUntil('\n').toInt();
+	ringL.ringR = configFile.readStringUntil('\n').toInt();
+	ringL.ringG = configFile.readStringUntil('\n').toInt();
+	ringL.ringB = configFile.readStringUntil('\n').toInt();
+	ringR.ringR = ringL.ringR;
+	ringR.ringG = ringL.ringG;
+	ringR.ringB = ringL.ringB;
+	audioVolume = configFile.readStringUntil('\n').toFloat();
+	if (simonSaysActive = configFile.readStringUntil('\n') == "1")
+	{
+		simonSaysActive = true;
+	}
+	else
+	{
+		simonSaysActive = false;
+	}
+	lilguy.happiness = configFile.readStringUntil('\n').toInt();
+	lilguy.guyBodyColor[0] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyBodyColor[1] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyBodyColor[2] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyOutlineColor[0] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyOutlineColor[1] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyOutlineColor[2] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyAccentColor[0] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyAccentColor[1] = configFile.readStringUntil('\n').toInt();
+	lilguy.guyAccentColor[2] = configFile.readStringUntil('\n').toInt();
+
+	display.setColor();
+	ringL.setColor();
+	ringR.setColor();
+	display.writeTime(getMinutes(), getHours(), militaryTime);
+	configFile.close();
+}
+
 unsigned long displayTimeMillis; // used to lower the frequency of screen updates
 int oldminutes;
 void updateTimeDisplay()
@@ -57,6 +219,24 @@ void updateTimeDisplay()
 		if (oldminutes != getMinutes())
 		{
 			display.writeTime(getMinutes(), getHours(), militaryTime);
+			display.refreshDisplay();
+			oldminutes = getMinutes();
+		}
+		displayTimeMillis = currentmillis;
+	}
+}
+
+void altUpdateTimeDisplay()
+{
+	unsigned long currentmillis = millis();
+	int diff = currentmillis - displayTimeMillis;
+	if (abs(diff) >= 1000) // updates every second, can be easily adjusted.
+	// abs is used for the case where the millis reading hits a max and loops over, which will happen when the device is left on
+	{
+		if (oldminutes != getMinutes())
+		{
+			display.writeTime(getMinutes(), getHours(), militaryTime);
+			drawGuy();
 			display.refreshDisplay();
 			oldminutes = getMinutes();
 		}
@@ -134,16 +314,14 @@ void noop()
 void test1()
 {
 	lilguy.guySad();
-	lilguy.drawGuy();
-	display.copyBuffer(false, 0, lilguy.guyBuffer);
+	drawGuy();
 	display.refreshDisplay();
 	Serial.println("drew guy");
 }
 void test2()
 {
 	lilguy.guyHappy();
-	lilguy.drawGuy();
-	display.copyBuffer(false, 0, lilguy.guyBuffer);
+	drawGuy();
 	display.refreshDisplay();
 	Serial.println("drew guy");
 }
@@ -282,17 +460,53 @@ void loopPrevention()
 	}
 }
 
+unsigned long timingMillis;
+void soundAlarm()
+{
+	playAudioLoop();
+	unsigned long currentmillis = millis();
+	long diff = currentmillis - timingMillis;
+	if (diff > 300000)
+	{
+		snooze == true;
+		lilguy.guySad();
+		timingMillis = currentmillis;
+		lilguy.guySad();
+		drawGuy();
+		display.refreshDisplay();
+	}
+	if (snooze && diff > 60000)
+	{
+		lilguy.guySad();
+		timingMillis = currentmillis;
+		lilguy.guySad();
+		drawGuy();
+		display.refreshDisplay();
+	}
+}
+
 void stopAlarm()
 {
 	Serial.println("stopping alarms");
-	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
-	alarmStatus = SILENCED;
+	if (!simonSaysActive)
+	{
+		loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), ringBlinks));
+	}
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), soundAlarm));
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), altUpdateTimeDisplay));
+	loopFunctions.push_back(updateTimeDisplay);
 	stopAudio();
-	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), playAudioLoop));
-	buttonLFunc = noop;
-	buttonRFunc = noop;
+	alarmStatus = SILENCED;
+	buttonLFunc = test1;
+	buttonRFunc = test2;
 	writeConfig();
 	snooze = false;
+	lilguy.guyHappy();
+	lilguy.guyHappy();
+	drawGuy();
+	display.refreshDisplay();
+	ringL.blank();
+	ringR.blank();
 }
 
 void simonLoop()
@@ -313,42 +527,15 @@ void simonEnd()
 	stopAlarm();
 }
 
-unsigned long timingMillis;
-void soundAlarm()
-{
-	playAudioLoop();
-	unsigned long currentmillis = millis();
-	long diff = currentmillis - timingMillis;
-	if (diff > 300000)
-	{
-		snooze == true;
-		lilguy.guySad();
-		simon.difficulty = 7 - lilguy.happiness;
-		timingMillis = currentmillis;
-		lilguy.guySad();
-		lilguy.drawGuy();
-		display.copyBuffer(false, 0, lilguy.guyBuffer);
-		display.refreshDisplay();
-	}
-	if (snooze && diff > 60000)
-	{
-		lilguy.happiness -= 1;
-		lilguy.guySad();
-		timingMillis = currentmillis;
-		simon.difficulty = 7 - lilguy.happiness;
-		lilguy.guySad();
-		lilguy.drawGuy();
-		display.copyBuffer(false, 0, lilguy.guyBuffer);
-		display.refreshDisplay();
-	}
-}
-
 void startAlarm()
 {
 	Serial.println("Sounding Alarm");
 	startAudio();
-	loopFunctions.push_back(playAudioLoop);
+	loopFunctions.push_back(soundAlarm);
 	loopFunctions.push_back(loopPrevention);
+	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), updateTimeDisplay));
+	loopFunctions.push_back(altUpdateTimeDisplay);
+
 	alarmStatus = SOUNDING_ALARM;
 	getNextAlarm();
 	if (simonSaysActive)
@@ -360,13 +547,13 @@ void startAlarm()
 	}
 	else
 	{
+		simon.difficulty = 7 - lilguy.happiness;
 		buttonLFunc = stopAlarm;
 		buttonRFunc = stopAlarm;
 		loopFunctions.push_back(ringBlinks);
 	}
 	lilguy.guySad();
-	lilguy.drawGuy();
-	display.copyBuffer(false, 0, lilguy.guyBuffer);
+	drawGuy();
 	display.refreshDisplay();
 }
 
@@ -407,137 +594,6 @@ String alarmListProcessor(const String &var)
 		return alarmsList;
 	}
 	return String();
-}
-void writeConfig()
-{
-	File configFile;
-	if (SD.exists("/config.txt"))
-	{
-		SD.remove("/config.txt");
-	}
-	Serial.println("writing file");
-	configFile = SD.open("/config.txt", FILE_WRITE);
-
-	configFile.println(display.brightness);
-
-	configFile.println(display.numberR);
-	configFile.println(display.numberG);
-	configFile.println(display.numberB);
-
-	configFile.println(display.dotR);
-	configFile.println(display.dotG);
-	configFile.println(display.dotB);
-
-	configFile.println(ringL.ringR);
-	configFile.println(ringL.ringG);
-	configFile.println(ringL.ringB);
-
-	configFile.println(audioVolume);
-
-	if (simonSaysActive)
-	{
-		configFile.println("1");
-	}
-	else
-	{
-		configFile.println("0");
-	}
-
-	configFile.println(lilguy.happiness);
-
-	configFile.println(lilguy.guyBodyColor[0]);
-	configFile.println(lilguy.guyBodyColor[1]);
-	configFile.println(lilguy.guyBodyColor[2]);
-
-	configFile.println(lilguy.guyOutlineColor[0]);
-	configFile.println(lilguy.guyOutlineColor[1]);
-	configFile.println(lilguy.guyOutlineColor[2]);
-
-	configFile.println(lilguy.guyAccentColor[0]);
-	configFile.println(lilguy.guyAccentColor[1]);
-	configFile.println(lilguy.guyAccentColor[2]);
-
-	configFile.close();
-}
-
-void initConfig()
-{
-	File configFile;
-	if (SD.exists("/config.txt"))
-	{
-		SD.remove("/config.txt");
-	}
-	Serial.println("writing file");
-	configFile = SD.open("/config.txt", FILE_WRITE);
-
-	configFile.println(75);
-
-	configFile.println(255);
-	configFile.println(255);
-	configFile.println(0);
-
-	configFile.println(255);
-	configFile.println(255);
-	configFile.println(255);
-
-	configFile.println(0);
-	configFile.println(0);
-	configFile.println(255);
-
-	configFile.println(0.5);
-	configFile.println(1);
-
-	configFile.close();
-}
-
-void readConfig()
-{
-	File configFile;
-
-	if (!SD.exists("/config.txt"))
-	{
-		initConfig();
-	}
-	configFile = SD.open("/config.txt", FILE_READ);
-	Serial.println("reading file");
-
-	display.brightness = configFile.readStringUntil('\n').toInt();
-	display.numberR = configFile.readStringUntil('\n').toInt();
-	display.numberG = configFile.readStringUntil('\n').toInt();
-	display.numberB = configFile.readStringUntil('\n').toInt();
-	display.dotR = configFile.readStringUntil('\n').toInt();
-	display.dotG = configFile.readStringUntil('\n').toInt();
-	display.dotB = configFile.readStringUntil('\n').toInt();
-	ringL.ringR = configFile.readStringUntil('\n').toInt();
-	ringL.ringG = configFile.readStringUntil('\n').toInt();
-	ringL.ringB = configFile.readStringUntil('\n').toInt();
-	ringR.ringR = ringL.ringR;
-	ringR.ringG = ringL.ringG;
-	ringR.ringB = ringL.ringB;
-	audioVolume = configFile.readStringUntil('\n').toFloat();
-	if (simonSaysActive = configFile.readStringUntil('\n') == "1")
-	{
-		simonSaysActive = true;
-	}
-	else
-	{
-		simonSaysActive = false;
-	}
-	lilguy.happiness = configFile.readStringUntil('\n').toInt();
-	lilguy.guyBodyColor[0] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyBodyColor[1] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyBodyColor[2] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyOutlineColor[0] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyOutlineColor[1] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyOutlineColor[2] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyAccentColor[0] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyAccentColor[1] = configFile.readStringUntil('\n').toInt();
-	lilguy.guyAccentColor[2] = configFile.readStringUntil('\n').toInt();
-
-	display.setColor();
-	ringL.setColor();
-	ringR.setColor();
-	display.writeTime(getMinutes(), getHours(), militaryTime);
 }
 
 class CaptiveRequestHandler : public AsyncWebHandler

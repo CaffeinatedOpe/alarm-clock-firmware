@@ -35,6 +35,9 @@ void LittleGuy::guyHappy()
 	guyWorkingBodyColor[0] = guyBodyColor[0];
 	guyWorkingBodyColor[1] = guyBodyColor[1];
 	guyWorkingBodyColor[2] = guyBodyColor[2];
+	Serial.println(guyWorkingBodyColor[0]);
+	Serial.println(guyWorkingBodyColor[1]);
+	Serial.println(guyWorkingBodyColor[2]);
 	guyWorkingOutlineColor[0] = guyOutlineColor[0];
 	guyWorkingOutlineColor[1] = guyOutlineColor[1];
 	guyWorkingOutlineColor[2] = guyOutlineColor[2];
