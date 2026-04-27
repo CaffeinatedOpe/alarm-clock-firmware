@@ -41,7 +41,7 @@ void drawGuy()
 }
 
 bool snooze = false;
-bool militaryTime = false;
+bool militaryTime;
 bool simonSaysActive = true;
 void (*buttonLFunc)();
 void (*buttonRFunc)();
@@ -107,6 +107,15 @@ void writeConfig()
 	configFile.println(lilguy.guyAccentColor[1]);
 	configFile.println(lilguy.guyAccentColor[2]);
 
+	if (militaryTime)
+	{
+		configFile.println("1");
+	}
+	else
+	{
+		configFile.println("0");
+	}
+
 	configFile.close();
 }
 
@@ -152,8 +161,9 @@ void initConfig()
 	configFile.println(255); // lilguy.guyAccentColor[1]
 	configFile.println(255); // lilguy.guyAccentColor[2]
 
+	configFile.println(0);
+
 	configFile.close();
-	;
 }
 
 void readConfig()
@@ -181,7 +191,7 @@ void readConfig()
 	ringR.ringG = ringL.ringG;
 	ringR.ringB = ringL.ringB;
 	audioVolume = configFile.readStringUntil('\n').toFloat();
-	if (simonSaysActive = configFile.readStringUntil('\n') == "1")
+	if (configFile.readStringUntil('\n') == "1")
 	{
 		simonSaysActive = true;
 	}
@@ -199,6 +209,15 @@ void readConfig()
 	lilguy.guyAccentColor[0] = configFile.readStringUntil('\n').toInt();
 	lilguy.guyAccentColor[1] = configFile.readStringUntil('\n').toInt();
 	lilguy.guyAccentColor[2] = configFile.readStringUntil('\n').toInt();
+
+	if (configFile.readStringUntil('\n') == "1")
+	{
+		militaryTime = true;
+	}
+	else
+	{
+		militaryTime = false;
+	}
 
 	display.setColor();
 	ringL.setColor();
@@ -311,19 +330,17 @@ struct Time
 void noop()
 {
 }
-void test1()
+void rdefault()
 {
-	lilguy.guySad();
-	drawGuy();
+	display.blankScreen();
+	FastLED.setBrightness(0);
 	display.refreshDisplay();
-	Serial.println("drew guy");
 }
-void test2()
+void ldefault()
 {
-	lilguy.guyHappy();
+	FastLED.setBrightness(display.brightness);
 	drawGuy();
 	display.refreshDisplay();
-	Serial.println("drew guy");
 }
 
 vector<Time> alarms = {};
@@ -463,6 +480,7 @@ void loopPrevention()
 unsigned long timingMillis;
 void soundAlarm()
 {
+	display.setBrightness(display.brightness);
 	playAudioLoop();
 	unsigned long currentmillis = millis();
 	long diff = currentmillis - timingMillis;
@@ -497,8 +515,8 @@ void stopAlarm()
 	loopFunctions.push_back(updateTimeDisplay);
 	stopAudio();
 	alarmStatus = SILENCED;
-	buttonLFunc = test1;
-	buttonRFunc = test2;
+	buttonLFunc = ldefault;
+	buttonRFunc = rdefault;
 	writeConfig();
 	snooze = false;
 	lilguy.guyHappy();
@@ -823,6 +841,16 @@ void wifiSetup()
 							simonSaysActive = false;
 							writeConfig();
 							request->send(200, "text/plain", "OK"); });
+	server.on("/militaryOn", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							militaryTime = true;
+							display.writeTime(getMinutes(), getHours(), militaryTime);
+							request->send(200, "text/plain", "OK"); });
+	server.on("/militaryOff", HTTP_GET, [](AsyncWebServerRequest *request)
+						{
+							militaryTime = false;
+							display.writeTime(getMinutes(), getHours(), militaryTime);
+							request->send(200, "text/plain", "OK"); });
 	server.on("/updateBodyColor", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
 				String inputR;
@@ -936,8 +964,8 @@ void setup()
 	simon.finishFunction = stopAlarm;
 	Serial.println(lilguy.happiness);
 
-	buttonLFunc = test1;
-	buttonRFunc = test2;
+	buttonLFunc = ldefault;
+	buttonRFunc = rdefault;
 }
 
 void loop()

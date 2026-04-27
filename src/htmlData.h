@@ -100,6 +100,16 @@ const char index_html[] PROGMEM = R"rawliteral(
 		xhr.open("GET", "/updateAccentColor?r=" + color.r + "&g=" + color.g + "&b=" + color.b, true);
 		xhr.send();
 	}
+	function militaryOn() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/militaryOn", true);
+		xhr.send();
+	}
+	function militaryOff() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/militaryOff", true);
+		xhr.send();
+	}
 
 	updateTime()
 </script>
@@ -146,6 +156,10 @@ const char index_html[] PROGMEM = R"rawliteral(
 		Simon On</button><br />
 	<button type='button' onclick='simonOff()'>
 		Simon Off</button><br />
+	<button type='button' onclick='militaryOn()'>
+		Military On</button><br />
+	<button type='button' onclick='militaryOff()'>
+		Military Off</button><br />
 	<a href="/alarms.html">To Alarms Page</a>
 	
 
