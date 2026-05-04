@@ -109,6 +109,11 @@
 		xhr.open("GET", "/militaryOff", true);
 		xhr.send();
 	}
+	function soundAlarm() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/soundAlarm", true);
+		xhr.send();
+	}
 
 	updateTime()
 </script>
@@ -159,7 +164,8 @@
 		Military On</button><br />
 	<button type='button' onclick='militaryOff()'>
 		Military Off</button><br />
-	<a href="/alarms">To Alarms Page</a>
+	<button type='button' onclick='soundAlarm()'>
+		Sound Alarm</button><br />
 	
 
 </body>

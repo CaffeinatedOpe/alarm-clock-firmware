@@ -339,6 +339,7 @@ void rdefault()
 void ldefault()
 {
 	FastLED.setBrightness(display.brightness);
+	display.writeTime(getMinutes(), getHours(), militaryTime);
 	drawGuy();
 	display.refreshDisplay();
 }
@@ -519,12 +520,14 @@ void stopAlarm()
 	buttonRFunc = rdefault;
 	writeConfig();
 	snooze = false;
+	display.blankScreen();
+	display.writeTime(getMinutes(), getHours(), militaryTime);
 	lilguy.guyHappy();
 	lilguy.guyHappy();
 	drawGuy();
-	display.refreshDisplay();
 	ringL.blank();
 	ringR.blank();
+	display.refreshDisplay();
 }
 
 void simonLoop()
@@ -654,6 +657,12 @@ void wifiSetup()
 			[](AsyncWebServerRequest *request)
 			{
 				request->send(200, "text/html", index_html);
+			});
+	server.on(
+			"/debug", HTTP_GET,
+			[](AsyncWebServerRequest *request)
+			{
+				request->send(200, "text/html", debug_html);
 			});
 	server.on("/changeTime", HTTP_GET, [](AsyncWebServerRequest *request)
 						{
