@@ -110,9 +110,12 @@ void writeConfig()
 	if (militaryTime)
 	{
 		configFile.println("1");
+		Serial.println("mil on");
+
 	}
 	else
 	{
+		Serial.println("mil on");
 		configFile.println("0");
 	}
 
@@ -191,7 +194,7 @@ void readConfig()
 	ringR.ringG = ringL.ringG;
 	ringR.ringB = ringL.ringB;
 	audioVolume = configFile.readStringUntil('\n').toFloat();
-	if (configFile.readStringUntil('\n') == "1")
+	if (configFile.readStringUntil('\n').toInt() == 1)
 	{
 		simonSaysActive = true;
 	}
@@ -210,12 +213,14 @@ void readConfig()
 	lilguy.guyAccentColor[1] = configFile.readStringUntil('\n').toInt();
 	lilguy.guyAccentColor[2] = configFile.readStringUntil('\n').toInt();
 
-	if (configFile.readStringUntil('\n') == "1")
+	if (configFile.readStringUntil('\n').toInt() == 1)
 	{
+		Serial.println("mil on");
 		militaryTime = true;
 	}
 	else
 	{
+		Serial.println("mil off");
 		militaryTime = false;
 	}
 
@@ -573,7 +578,8 @@ void startAlarm()
 		buttonRFunc = stopAlarm;
 		loopFunctions.push_back(ringBlinks);
 	}
-	lilguy.guySad();
+	display.blankScreen();
+	display.writeTime(getMinutes(), getHours(), militaryTime);
 	drawGuy();
 	display.refreshDisplay();
 }
@@ -786,6 +792,7 @@ void wifiSetup()
 			{
 				index = request->getParam("index")->value();
 				alarms.erase(alarms.begin() + index.toInt());
+				writeAlarms();
 			}
 			getCurrentAlarmIndex();
 			request->send(200, "text/plain", "OK"); });
