@@ -94,7 +94,6 @@ void SimonSays::simonloop()
 	if (step == (difficulty * 2))
 	{
 		finishFunction();
-		step = 0;
 		takeUserInput = false;
 	}
 }

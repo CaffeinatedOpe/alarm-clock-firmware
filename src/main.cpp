@@ -32,10 +32,12 @@ void drawGuy()
 	lilguy.drawGuy();
 	int position = millis() % 20;
 	int flip = millis() % 2;
-	if(flip == 1) {
+	if (flip == 1)
+	{
 		display.copyBuffer(false, position, lilguy.guyBuffer);
 	}
-	else {
+	else
+	{
 		display.copyBuffer(true, position, lilguy.guyBuffer);
 	}
 }
@@ -111,7 +113,6 @@ void writeConfig()
 	{
 		configFile.println("1");
 		Serial.println("mil on");
-
 	}
 	else
 	{
@@ -194,6 +195,7 @@ void readConfig()
 	ringR.ringG = ringL.ringG;
 	ringR.ringB = ringL.ringB;
 	audioVolume = configFile.readStringUntil('\n').toFloat();
+	i2s.setVolume((audioVolume));
 	if (configFile.readStringUntil('\n').toInt() == 1)
 	{
 		simonSaysActive = true;
@@ -402,12 +404,16 @@ void writeAlarms()
 // relies on the list of alarms being sorted, which is done as entries are added
 void getNextAlarm()
 {
-	currentAlarmIndex++;
-	if (currentAlarmIndex >= alarms.size())
+	if (alarms.size() > 0)
 	{
-		currentAlarmIndex = 0;
-	}
-	nextAlarm = alarms[currentAlarmIndex];
+
+		currentAlarmIndex++;
+		if (currentAlarmIndex >= alarms.size())
+		{
+			currentAlarmIndex = 0;
+		}
+		nextAlarm = alarms[currentAlarmIndex];
+	}	
 }
 
 void getCurrentAlarmIndex()
@@ -493,7 +499,6 @@ void soundAlarm()
 	if (diff > 300000)
 	{
 		snooze == true;
-		lilguy.guySad();
 		timingMillis = currentmillis;
 		lilguy.guySad();
 		drawGuy();
@@ -501,7 +506,6 @@ void soundAlarm()
 	}
 	if (snooze && diff > 60000)
 	{
-		lilguy.guySad();
 		timingMillis = currentmillis;
 		lilguy.guySad();
 		drawGuy();
@@ -549,6 +553,8 @@ void simonR()
 }
 void simonEnd()
 {
+	lilguy.guyHappy();
+	Serial.println(lilguy.happiness);
 	loopFunctions.erase(find(loopFunctions.begin(), loopFunctions.end(), simonLoop));
 	stopAlarm();
 }
@@ -977,7 +983,7 @@ void setup()
 	loopFunctions.push_back(alarmLoop);
 
 	simon.ringControlFunc = setRingState;
-	simon.finishFunction = stopAlarm;
+	simon.finishFunction = simonEnd;
 	Serial.println(lilguy.happiness);
 
 	buttonLFunc = ldefault;

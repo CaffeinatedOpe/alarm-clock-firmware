@@ -17,12 +17,6 @@ void LittleGuy::guySad()
 	if (happiness <= 1)
 	{
 		happiness = 1;
-		guyWorkingBodyColor[0] = 255;
-		guyWorkingBodyColor[1] = 255;
-		guyWorkingBodyColor[2] = 255;
-		guyWorkingOutlineColor[0] = 255;
-		guyWorkingOutlineColor[1] = 255;
-		guyWorkingOutlineColor[2] = 255;
 	}
 }
 
@@ -32,6 +26,10 @@ void LittleGuy::guyHappy()
 	{
 		happiness += 1;
 	}
+}
+
+void LittleGuy::drawGuy()
+{
 	guyWorkingBodyColor[0] = guyBodyColor[0];
 	guyWorkingBodyColor[1] = guyBodyColor[1];
 	guyWorkingBodyColor[2] = guyBodyColor[2];
@@ -41,10 +39,6 @@ void LittleGuy::guyHappy()
 	guyWorkingOutlineColor[0] = guyOutlineColor[0];
 	guyWorkingOutlineColor[1] = guyOutlineColor[1];
 	guyWorkingOutlineColor[2] = guyOutlineColor[2];
-}
-
-void LittleGuy::drawGuy()
-{
 	switch (happiness)
 	{
 
@@ -61,6 +55,12 @@ void LittleGuy::drawGuy()
 		renderGuy(FULLFLAT, ANGRY);
 		break;
 	case 1:
+		guyWorkingBodyColor[0] = 255;
+		guyWorkingBodyColor[1] = 255;
+		guyWorkingBodyColor[2] = 255;
+		guyWorkingOutlineColor[0] = 255;
+		guyWorkingOutlineColor[1] = 255;
+		guyWorkingOutlineColor[2] = 255;
 		renderGuy(FULLFLAT, FULL);
 		break;
 	}
